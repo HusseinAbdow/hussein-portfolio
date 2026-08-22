@@ -9,22 +9,28 @@ interface PortraitProps {
 }
 
 export default function Portrait({ blend }: PortraitProps) {
-  const leftBoundary = Math.min(Math.max(blend, 5), 95);
+  const leftBoundary = Number((100 - blend).toFixed(2));
   const leftClip = `polygon(0 0, ${leftBoundary}% 0, ${leftBoundary}% 100%, 0 100%)`;
   const rightClip = `polygon(${leftBoundary}% 0, 100% 0, 100% 100%, ${leftBoundary}% 100%)`;
 
   return (
-    <div className="relative w-64 sm:w-72 md:w-auto md:h-[58vh] lg:h-[72vh] aspect-[3/4] overflow-hidden">
+    <div
+      className="relative bg-transparent w-[min(78vw,60vh)] aspect-square h-auto md:w-auto md:aspect-[5/6] md:h-[45vh] lg:h-[92vh] lg:mt-[10vh] xl:h-[100vh] xl:mt-[8vh]"
+      style={{
+        boxShadow:
+          "0 40px 90px -32px rgba(2, 6, 23, 0.85), 0 18px 44px -22px rgba(30, 41, 59, 0.55)",
+      }}
+    >
       <Image
         src={leftPortrait}
         alt="Hussein Abdow, UI/UX developer portrait"
         fill
         priority
-        sizes="(max-width: 768px) 256px, (max-width: 1024px) 320px, 384px"
+        sizes="(max-width: 768px) 80vw, (max-width: 1280px) 40vh, 70vh"
         className="absolute inset-0 object-cover"
         style={{
           clipPath: leftClip,
-          objectPosition: "50% 18%",
+          objectPosition: "50% 12%",
         }}
       />
 
@@ -33,11 +39,11 @@ export default function Portrait({ blend }: PortraitProps) {
         alt="Hussein Abdow, mobile developer portrait"
         fill
         priority
-        sizes="(max-width: 768px) 256px, (max-width: 1024px) 320px, 384px"
+        sizes="(max-width: 768px) 80vw, (max-width: 1280px) 40vh, 70vh"
         className="absolute inset-0 object-cover"
         style={{
           clipPath: rightClip,
-          objectPosition: "50% 18%",
+          objectPosition: "50% 12%",
         }}
       />
     </div>

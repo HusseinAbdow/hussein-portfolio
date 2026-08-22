@@ -3,13 +3,19 @@
 @tailwind utilities;
 
 :root {
-  --bg: #130303;
-  --surface: #1a0807;
-  --ink: #f5f1ee;
-  --muted: #a69a96;
-  --border: #2a1512;
-  --accent-ux: #9385ff;
-  --accent-dev: #5b9cff;
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --ink: #f5f7fa;
+  --muted: #94a3b8;
+  --border: #1e293b;
+  --accent-ux: #a78bfa;
+  --accent-dev: #38bdf8;
+}
+
+.grain-overlay {
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
 }
 
 * {

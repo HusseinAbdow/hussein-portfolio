@@ -47,7 +47,7 @@ export default function AtmosphereDev({ intensity }: AtmosphereProps) {
           height="8"
           rx="4"
           fill="currentColor"
-          className="opacity-40"
+          className="opacity-50"
         />
         {/* Phone home indicator */}
         <line
@@ -58,7 +58,7 @@ export default function AtmosphereDev({ intensity }: AtmosphereProps) {
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
-          className="opacity-40"
+          className="opacity-50"
         />
 
         {/* Database Node */}
@@ -119,7 +119,7 @@ export default function AtmosphereDev({ intensity }: AtmosphereProps) {
           </g>
 
           {/* Endpoint 3 */}
-          <g className="opacity-40">
+          <g className="opacity-50">
             <text x="30" y="270" fill="currentColor">
               200 OK
             </text>
@@ -134,7 +134,7 @@ export default function AtmosphereDev({ intensity }: AtmosphereProps) {
         </g>
 
         {/* Server Nodes */}
-        <g className="opacity-40">
+        <g className="opacity-50">
           <rect
             x="200"
             y="330"

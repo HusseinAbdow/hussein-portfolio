@@ -27,7 +27,8 @@ export default function IntroLoader() {
           animate={{ y: 0 }}
           exit={{ y: "-100%" }}
           transition={{ duration: 0.6, ease: [0.62, 0.05, 0.01, 0.99] }} // Custom smooth easeInOut panel slide
-          className="fixed inset-0 bg-bg text-ink z-50 flex flex-col items-center justify-center px-6 overflow-hidden select-none"
+          className="fixed inset-0 text-ink z-50 flex flex-col items-center justify-center px-6 overflow-hidden select-none"
+          style={{ backgroundColor: "#090909" }}
         >
           {shouldReduceMotion ? (
             <div className="font-display font-semibold text-lg text-ink/50 tracking-wider">

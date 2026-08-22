@@ -55,7 +55,7 @@ export default function AtmosphereUX({ intensity }: AtmosphereProps) {
           y2="100"
           stroke="currentColor"
           strokeWidth="1"
-          className="opacity-40"
+          className="opacity-50"
         />
 
         {/* Small Button Outline */}
@@ -80,7 +80,7 @@ export default function AtmosphereUX({ intensity }: AtmosphereProps) {
         </text>
 
         {/* Grid Pattern Fragment */}
-        <g className="opacity-30">
+        <g className="opacity-40">
           <line
             x1="20"
             y1="260"

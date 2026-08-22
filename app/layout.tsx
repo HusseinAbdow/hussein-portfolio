@@ -28,6 +28,10 @@ export default function RootLayout({
     <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable}`}>
       <body className="bg-bg text-ink font-body antialiased min-h-screen">
         {children}
+        <div
+          aria-hidden
+          className="grain-overlay pointer-events-none fixed inset-0 z-[60]"
+        />
       </body>
     </html>
   );
