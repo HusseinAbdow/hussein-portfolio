@@ -8,6 +8,8 @@ export interface Project {
   summary: string;
   description: string;
   tags: string[];
+  repoUrl?: string;
+  techStack?: string[];
   coverType: "image" | "video";
   coverSrc: string;
   gallery: { type: "image" | "video"; src: string; caption?: string }[];
@@ -100,32 +102,49 @@ export const projects: Project[] = [
     ],
   },
   {
-    slug: "solstice-agency-website",
-    title: "Solstice Agency Website (Placeholder)",
+    slug: "vanlife",
+    title: "VanLife",
     category: "website",
-    year: 2024,
+    year: 2025,
     summary:
-      "Placeholder marketing site concept balancing storytelling sections with conversion-focused CTAs.",
+      "A car leasing platform for browsing available vehicles, managing active leases, and reviewing customer feedback.",
     description:
-      "This placeholder website project explores a narrative-led agency homepage with modular service sections, case highlights, and prominent conversion touchpoints. The objective is to test content hierarchy, pacing, and visual transitions before replacing placeholders with real brand assets and production copy.",
-    tags: ["Next.js", "Content Strategy", "Performance", "SEO"],
-    coverType: "image",
-    coverSrc: "/placeholder-project-7.jpg",
+      "VanLife is a full-stack car leasing website built with PHP, HTML, and CSS. It lets users browse available vehicles with detailed specs, view and manage active leases, and read customer reviews — combining a clean, browsable catalog experience with practical account/lease management.",
+    tags: ["PHP", "HTML", "CSS"],
+    techStack: ["PHP", "HTML", "CSS"],
+    repoUrl: "https://github.com/HusseinAbdow/vanlife",
+    coverType: "video",
+    coverSrc: "/work/vanlife/landing-page-video.mp4",
     gallery: [
       {
         type: "image",
-        src: "/placeholder-project-7.jpg",
-        caption: "Homepage hero placeholder",
+        src: "/work/vanlife/landing-page.png",
+        caption: "Landing page",
       },
       {
         type: "image",
-        src: "/placeholder-project-8.jpg",
-        caption: "Services section placeholder",
+        src: "/work/vanlife/available-cars.png",
+        caption: "Available cars",
       },
       {
-        type: "video",
-        src: "/placeholder-project-3.mp4",
-        caption: "Scroll interaction placeholder",
+        type: "image",
+        src: "/work/vanlife/car-info.png",
+        caption: "Car details",
+      },
+      {
+        type: "image",
+        src: "/work/vanlife/car-info-2.png",
+        caption: "Car details — specs",
+      },
+      {
+        type: "image",
+        src: "/work/vanlife/active-leases.png",
+        caption: "Active leases",
+      },
+      {
+        type: "image",
+        src: "/work/vanlife/customer-review.png",
+        caption: "Customer reviews",
       },
     ],
   },
