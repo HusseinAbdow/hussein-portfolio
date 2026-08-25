@@ -98,7 +98,8 @@ export default function WorkCategoryPageClient({
       <motion.section
         variants={containerVariants}
         initial="hidden"
-        animate="show"
+        whileInView="show"
+        viewport={{ once: true, margin: "-100px" }}
         className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8"
       >
         {projects.map((project) => (

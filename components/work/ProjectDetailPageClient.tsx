@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import type { Project } from "@/lib/projects";
 
 function GithubIcon({ size = 16 }: { size?: number }) {
@@ -43,6 +43,80 @@ function getTagTint(category: Project["category"]): string {
 }
 
 type GalleryItem = Project["gallery"][number];
+
+const revealEase = [0.22, 1, 0.36, 1] as const;
+
+function ScrollRevealGalleryItem({
+  item,
+  alt,
+  onOpen,
+}: {
+  item: GalleryItem;
+  alt: string;
+  onOpen: () => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  const opacity = useTransform(
+    scrollYProgress,
+    [0, 0.3, 0.5, 0.7, 1],
+    [0, 1, 1, 1, 0],
+  );
+  const y = useTransform(scrollYProgress, [0, 0.5, 1], [80, 0, -80]);
+  const filter = useTransform(
+    scrollYProgress,
+    [0, 0.3, 0.5, 0.7, 1],
+    [
+      "blur(8px)",
+      "blur(0px)",
+      "blur(0px)",
+      "blur(0px)",
+      "blur(8px)",
+    ],
+  );
+
+  return (
+    <motion.div
+      ref={containerRef}
+      style={{ opacity, y }}
+      className="relative mb-[22vh] md:mb-[28vh]"
+    >
+      <motion.button
+        type="button"
+        onClick={onOpen}
+        style={{ filter }}
+        className="mx-auto block h-[48vh] md:h-[64vh] w-fit max-w-[92vw] md:max-w-[1080px] overflow-hidden rounded-2xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink shadow-[0_18px_50px_rgba(0,0,0,0.45)]"
+      >
+        {item.type === "video" ? (
+          <video
+            src={item.src}
+            className="block h-full w-auto max-w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={item.src}
+            alt={alt}
+            className="block h-full w-auto max-w-full object-cover"
+          />
+        )}
+        {item.caption ? (
+          <span className="absolute bottom-0 left-0 right-0 px-4 py-3 text-center font-body text-[11px] uppercase tracking-[0.08em] text-muted bg-gradient-to-t from-bg/90 to-transparent">
+            {item.caption}
+          </span>
+        ) : null}
+      </motion.button>
+    </motion.div>
+  );
+}
 
 export default function ProjectDetailPageClient({
   project,
@@ -133,52 +207,36 @@ export default function ProjectDetailPageClient({
         </div>
 
         <section className="max-w-[65ch] mb-12 md:mb-16">
-          <p className="font-body text-[15px] md:text-[16px] leading-relaxed text-ink/90">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.5, ease: revealEase }}
+            className="font-body text-[15px] md:text-[16px] leading-relaxed text-ink/90"
+          >
             {project.description}
-          </p>
+          </motion.p>
         </section>
 
         <section className="mb-14 md:mb-20">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-            {project.gallery.map((item) => (
-              <button
-                key={item.src}
-                type="button"
-                onClick={() => setLightboxItem(item)}
-                className="group relative aspect-[16/10] rounded-xl overflow-hidden border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink transition-shadow group-hover:shadow-[0_18px_50px_rgba(0,0,0,0.45)]"
-              >
-                {item.type === "video" ? (
-                  <video
-                    src={item.src}
-                    className="h-full w-full object-cover"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                  />
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={item.src}
-                    alt={item.caption ?? project.title}
-                    className="h-full w-full object-cover"
-                  />
-                )}
-                {item.caption ? (
-                  <span className="absolute bottom-0 left-0 right-0 px-3 py-2 font-body text-[11px] uppercase tracking-[0.08em] text-muted bg-gradient-to-t from-bg/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity text-left">
-                    {item.caption}
-                  </span>
-                ) : null}
-              </button>
-            ))}
-          </div>
+          {project.gallery.map((item) => (
+            <ScrollRevealGalleryItem
+              key={item.src}
+              item={item}
+              alt={item.caption ?? project.title}
+              onOpen={() => setLightboxItem(item)}
+            />
+          ))}
         </section>
 
         <section className="mb-4">
           <Link href={`/work/${nextProject.category}/${nextProject.slug}`} className="block group">
             <motion.article
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.5, ease: revealEase }}
               whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 220, damping: 20 }}
               className="rounded-2xl border border-border bg-surface/60 overflow-hidden p-6 md:p-8 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] group-hover:shadow-[0_18px_50px_rgba(0,0,0,0.45)] transition-shadow"
             >
               <p className="font-body text-[12px] uppercase tracking-[0.12em] text-muted mb-2">
