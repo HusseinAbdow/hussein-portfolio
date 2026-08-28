@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import WorkCategoryPageClient from "@/components/work/WorkCategoryPageClient";
 import { projects } from "@/lib/projects";
 
-type WorkFilter = "all" | "ui-ux" | "mobile" | "website";
+type WorkFilter = "all" | "web-uiux" | "mobile";
 
-const validFilters: WorkFilter[] = ["all", "ui-ux", "mobile", "website"];
+const validFilters: WorkFilter[] = ["all", "web-uiux", "mobile"];
 
 interface PageProps {
   params: {
@@ -22,8 +22,8 @@ export function generateMetadata({ params }: PageProps): Metadata {
   const label =
     category === "all"
       ? "My Work"
-      : category === "ui-ux"
-        ? "UI/UX Work"
+      : category === "web-uiux"
+        ? "Web & UI/UX Work"
         : category === "mobile"
           ? "Mobile Work"
           : "Website Work";
@@ -44,7 +44,12 @@ export default function WorkCategoryPage({ params }: PageProps) {
   const filteredProjects =
     activeCategory === "all"
       ? projects
-      : projects.filter((project) => project.category === activeCategory);
+      : activeCategory === "web-uiux"
+        ? [
+            ...projects.filter((project) => project.category === "website"),
+            ...projects.filter((project) => project.category === "ui-ux"),
+          ]
+        : projects.filter((project) => project.category === activeCategory);
 
   return (
     <WorkCategoryPageClient

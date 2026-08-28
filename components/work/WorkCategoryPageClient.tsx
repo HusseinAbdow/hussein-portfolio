@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Project, ProjectCategory } from "@/lib/projects";
 
-type WorkFilter = "all" | ProjectCategory;
+type WorkFilter = "all" | "web-uiux" | "mobile";
 
 interface WorkCategoryPageClientProps {
   activeCategory: WorkFilter;
@@ -13,9 +13,8 @@ interface WorkCategoryPageClientProps {
 
 const filters: Array<{ key: WorkFilter; label: string }> = [
   { key: "all", label: "All" },
-  { key: "ui-ux", label: "UI-UX" },
+  { key: "web-uiux", label: "Web & UI/UX" },
   { key: "mobile", label: "Mobile" },
-  { key: "website", label: "Websites" },
 ];
 
 const containerVariants = {
@@ -40,13 +39,13 @@ const cardVariants = {
 
 function getCategoryLabel(category: WorkFilter): string {
   if (category === "all") return "All Work";
-  if (category === "ui-ux") return "UI/UX Work";
+  if (category === "web-uiux") return "Web & UI/UX Work";
   if (category === "mobile") return "Mobile Work";
   return "Website Work";
 }
 
 function getCategoryAccent(category: WorkFilter): string {
-  if (category === "ui-ux") return "text-accentUx";
+  if (category === "web-uiux") return "text-accentUx";
   if (category === "mobile") return "text-accentDev";
   return "text-ink";
 }
@@ -95,66 +94,74 @@ export default function WorkCategoryPageClient({
         })}
       </nav>
 
-      <motion.section
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, margin: "-100px" }}
-        className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8"
-      >
-        {projects.map((project) => (
-          <motion.div key={project.slug} variants={cardVariants}>
-            <Link
-              href={`/work/${project.category}/${project.slug}`}
-              className="block group"
-            >
-              <motion.article
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 220, damping: 20 }}
-                className="rounded-2xl border border-border bg-surface/60 overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.02)] group-hover:shadow-[0_18px_50px_rgba(0,0,0,0.45)] transition-shadow"
+      {projects.length === 0 ? (
+        <section className="max-w-[1200px] mx-auto flex min-h-[32vh] items-center justify-center py-16 text-center">
+          <p className="font-display text-[clamp(24px,4vw,40px)] text-muted">
+            More work coming soon.
+          </p>
+        </section>
+      ) : (
+        <motion.section
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+          className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8"
+        >
+          {projects.map((project) => (
+            <motion.div key={project.slug} variants={cardVariants}>
+              <Link
+                href={`/work/${project.category}/${project.slug}`}
+                className="block group"
               >
-                <div className="relative aspect-[16/10] bg-surface">
-                  {project.coverType === "video" ? (
-                    <video
-                      src={project.coverSrc}
-                      className="h-full w-full object-cover"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                    />
-                  ) : (
-                    <img
-                      src={project.coverSrc}
-                      alt={`${project.title} cover`}
-                      className="h-full w-full object-cover"
-                    />
-                  )}
-                </div>
-
-                <div className="p-5 md:p-6">
-                  <h2 className="font-display text-[clamp(22px,2.6vw,32px)] leading-tight mb-2 uppercase">
-                    {project.title}
-                  </h2>
-                  <p className="font-body text-[14px] text-muted leading-relaxed mb-4">
-                    {project.summary}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
-                      <span
-                        key={`${project.slug}-${tag}`}
-                        className={`font-body text-[11px] uppercase tracking-[0.08em] px-2.5 py-1 rounded-full border ${getTagTint(project.category)}`}
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                <motion.article
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 220, damping: 20 }}
+                  className="rounded-2xl border border-border bg-surface/60 overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.02)] group-hover:shadow-[0_18px_50px_rgba(0,0,0,0.45)] transition-shadow"
+                >
+                  <div className="relative aspect-[16/10] bg-surface">
+                    {project.coverType === "video" ? (
+                      <video
+                        src={project.coverSrc}
+                        className="h-full w-full object-cover"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                      />
+                    ) : (
+                      <img
+                        src={project.coverSrc}
+                        alt={`${project.title} cover`}
+                        className="h-full w-full object-cover"
+                      />
+                    )}
                   </div>
-                </div>
-              </motion.article>
-            </Link>
-          </motion.div>
-        ))}
-      </motion.section>
+
+                  <div className="p-5 md:p-6">
+                    <h2 className="font-display text-[clamp(22px,2.6vw,32px)] leading-tight mb-2 uppercase">
+                      {project.title}
+                    </h2>
+                    <p className="font-body text-[14px] text-muted leading-relaxed mb-4">
+                      {project.summary}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {project.tags.map((tag) => (
+                        <span
+                          key={`${project.slug}-${tag}`}
+                          className={`font-body text-[11px] uppercase tracking-[0.08em] px-2.5 py-1 rounded-full border ${getTagTint(project.category)}`}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </motion.article>
+              </Link>
+            </motion.div>
+          ))}
+        </motion.section>
+      )}
     </main>
   );
 }

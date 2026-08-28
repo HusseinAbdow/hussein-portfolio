@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { ExternalLink } from "lucide-react";
 import type { Project } from "@/lib/projects";
 
 function GithubIcon({ size = 16 }: { size?: number }) {
@@ -46,55 +47,80 @@ type GalleryItem = Project["gallery"][number];
 
 const revealEase = [0.22, 1, 0.36, 1] as const;
 
-function ScrollRevealGalleryItem({
+function GalleryItem({
   item,
   alt,
   onOpen,
+  index,
+  isMobile = false,
+  isUiUx = false,
+  columns = 1,
 }: {
   item: GalleryItem;
   alt: string;
   onOpen: () => void;
+  index: number;
+  isMobile?: boolean;
+  isUiUx?: boolean;
+  columns?: number;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
-
-  const opacity = useTransform(
-    scrollYProgress,
-    [0, 0.3, 0.5, 0.7, 1],
-    [0, 1, 1, 1, 0],
-  );
-  const y = useTransform(scrollYProgress, [0, 0.5, 1], [80, 0, -80]);
-  const filter = useTransform(
-    scrollYProgress,
-    [0, 0.3, 0.5, 0.7, 1],
-    [
-      "blur(8px)",
-      "blur(0px)",
-      "blur(0px)",
-      "blur(0px)",
-      "blur(8px)",
-    ],
-  );
+  const rotate = index % 2 === 0 ? -2 : 2;
+  const label = String(index + 1).padStart(2, "0");
 
   return (
     <motion.div
-      ref={containerRef}
-      style={{ opacity, y }}
-      className="relative mb-[22vh] md:mb-[28vh]"
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: false, amount: 0.4 }}
+      transition={{ staggerChildren: 0.1, delayChildren: 0 }}
+      variants={{ hidden: {}, show: {} }}
+      className={isMobile || isUiUx ? "mb-0" : "mb-10 md:mb-16"}
     >
+      <motion.header
+        variants={{
+          hidden: { opacity: 0, y: 40 },
+          show: {
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.5, ease: revealEase },
+          },
+        }}
+        className={`mx-auto ${isMobile ? "mb-3" : "mb-4 md:mb-5"} w-fit max-w-full text-center`}
+      >
+        <p className="font-body text-[12px] uppercase tracking-[0.12em] text-muted mb-1">
+          {label}
+        </p>
+        {item.caption ? (
+          <h2 className={`font-display ${isMobile ? "text-[16px] md:text-[18px]" : "text-[20px] md:text-[24px]"} font-semibold text-ink`}>
+            {item.caption}
+          </h2>
+        ) : null}
+      </motion.header>
       <motion.button
         type="button"
         onClick={onOpen}
-        style={{ filter }}
-        className="mx-auto block h-[48vh] md:h-[64vh] w-fit max-w-[92vw] md:max-w-[1080px] overflow-hidden rounded-2xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink shadow-[0_18px_50px_rgba(0,0,0,0.45)]"
+        variants={{
+          hidden: { opacity: 0, y: 60, scale: 0.9, rotate },
+          show: {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            rotate: 0,
+            transition: {
+              duration: 0.6,
+              ease: revealEase,
+              delay: isMobile ? (index % columns) * 0.1 : 0,
+            },
+          },
+        }}
+        className={isMobile
+          ? "mx-auto block aspect-[9/16] w-full overflow-hidden rounded-xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink"
+          : `mx-auto block ${isUiUx ? "h-[50vh] w-fit max-w-full" : "h-[55vh] md:h-[62vh] w-fit max-w-full"} overflow-hidden rounded-2xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]`}
       >
         {item.type === "video" ? (
           <video
             src={item.src}
-            className="block h-full w-auto max-w-full object-cover"
+             className={isMobile ? "block h-full w-full object-cover" : "block h-full w-auto object-contain"}
             autoPlay
             muted
             loop
@@ -105,14 +131,9 @@ function ScrollRevealGalleryItem({
           <img
             src={item.src}
             alt={alt}
-            className="block h-full w-auto max-w-full object-cover"
+             className={isMobile ? "block h-full w-full object-cover" : "block h-full w-auto object-contain"}
           />
         )}
-        {item.caption ? (
-          <span className="absolute bottom-0 left-0 right-0 px-4 py-3 text-center font-body text-[11px] uppercase tracking-[0.08em] text-muted bg-gradient-to-t from-bg/90 to-transparent">
-            {item.caption}
-          </span>
-        ) : null}
       </motion.button>
     </motion.div>
   );
@@ -140,6 +161,9 @@ export default function ProjectDetailPageClient({
       transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
     },
   };
+
+  const mobileColumns =
+    project.gallery.length >= 4 ? 4 : project.gallery.length >= 3 ? 3 : 2;
 
   return (
     <motion.main
@@ -183,6 +207,16 @@ export default function ProjectDetailPageClient({
               <GithubIcon size={14} />
               <span>View on GitHub</span>
             </a>
+          ) : project.figmaUrl ? (
+            <a
+              href={project.figmaUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 font-body text-[12px] font-medium tracking-[0.1em] uppercase text-ink border border-accentUx/60 rounded-full px-4 py-2 transition-colors hover:bg-accentUx hover:text-bg"
+            >
+              <ExternalLink size={14} />
+              <span>View in Figma</span>
+            </a>
           ) : null}
         </header>
 
@@ -208,23 +242,29 @@ export default function ProjectDetailPageClient({
 
         <section className="max-w-[65ch] mb-12 md:mb-16">
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5, ease: revealEase }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.6, ease: revealEase }}
             className="font-body text-[15px] md:text-[16px] leading-relaxed text-ink/90"
           >
             {project.description}
           </motion.p>
         </section>
 
-        <section className="mb-14 md:mb-20">
-          {project.gallery.map((item) => (
-            <ScrollRevealGalleryItem
+        <section
+          className={`mb-14 md:mb-20 ${project.category === "mobile" ? `grid grid-cols-2 ${mobileColumns === 4 ? "md:grid-cols-4" : mobileColumns === 3 ? "md:grid-cols-3" : "md:grid-cols-2"} gap-x-3 gap-y-8 md:gap-x-5 md:gap-y-10` : project.category === "ui-ux" ? "flex flex-wrap items-start justify-center gap-8 md:gap-10" : ""}`}
+        >
+          {project.gallery.map((item, index) => (
+            <GalleryItem
               key={item.src}
               item={item}
               alt={item.caption ?? project.title}
               onOpen={() => setLightboxItem(item)}
+              index={index}
+              isMobile={project.category === "mobile"}
+              isUiUx={project.category === "ui-ux"}
+              columns={mobileColumns}
             />
           ))}
         </section>
@@ -232,10 +272,10 @@ export default function ProjectDetailPageClient({
         <section className="mb-4">
           <Link href={`/work/${nextProject.category}/${nextProject.slug}`} className="block group">
             <motion.article
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5, ease: revealEase }}
+              initial={{ opacity: 0, y: 40, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.6, ease: revealEase }}
               whileHover={{ scale: 1.02 }}
               className="rounded-2xl border border-border bg-surface/60 overflow-hidden p-6 md:p-8 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] group-hover:shadow-[0_18px_50px_rgba(0,0,0,0.45)] transition-shadow"
             >
