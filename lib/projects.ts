@@ -29,8 +29,8 @@ export const projects: Project[] = [
     tags: ["Flutter", "PostgreSQL", "Mobile UI"],
     techStack: ["Flutter", "PostgreSQL", "Mobile UI"],
     repoUrl: "https://github.com/HusseinAbdow/timberfy",
-    coverType: "image",
-    coverSrc: "/work/timberfy/timberfy_preview.gif",
+    coverType: "video",
+    coverSrc: "/work/timberfy/timberfy-preview.mp4",
     gallery: [
       { type: "image", src: "/work/timberfy/homepage.jpg", caption: "Homepage" },
       { type: "image", src: "/work/timberfy/shoe-details.jpg", caption: "Shoe Details" },
