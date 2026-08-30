@@ -11,11 +11,18 @@ export default function IntroLoader() {
     // If reduced motion is requested, slide out after 500ms, otherwise wait for text/progress animations (~2.4s)
     const displayDuration = shouldReduceMotion ? 500 : 2500;
 
+    let completionTimer: number | undefined;
     const timer = setTimeout(() => {
       setIsVisible(false);
+      completionTimer = window.setTimeout(() => {
+        window.dispatchEvent(new Event("portfolio:intro-complete"));
+      }, 600);
     }, displayDuration);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (completionTimer) window.clearTimeout(completionTimer);
+    };
   }, [shouldReduceMotion]);
 
   return (

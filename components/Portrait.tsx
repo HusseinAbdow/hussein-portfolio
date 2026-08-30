@@ -15,7 +15,7 @@ export default function Portrait({ blend }: PortraitProps) {
 
   return (
     <div
-      className="relative bg-transparent w-[min(78vw,60vh)] aspect-square h-auto md:w-auto md:aspect-[5/6] md:h-[45vh] lg:h-[92vh] lg:mt-[10vh] xl:h-[100vh] xl:mt-[8vh]"
+      className="relative bg-transparent w-full min-w-0 aspect-square h-auto md:w-auto md:aspect-[5/6] md:h-[45vh] lg:h-[48vh] xl:h-[76vh] 2xl:h-[88vh] 2xl:mt-[5vh]"
       style={{
         boxShadow:
           "0 40px 90px -32px rgba(2, 6, 23, 0.85), 0 18px 44px -22px rgba(30, 41, 59, 0.55)",

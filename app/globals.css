@@ -18,6 +18,23 @@
   background-repeat: repeat;
 }
 
+@keyframes status-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(0.82);
+  }
+}
+
+.status-dot {
+  animation: status-dot-pulse 2s ease-in-out infinite;
+}
+
 * {
   box-sizing: border-box;
 }

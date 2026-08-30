@@ -54,6 +54,7 @@ function GalleryItem({
   index,
   isMobile = false,
   isUiUx = false,
+  isOverview = false,
   columns = 1,
 }: {
   item: GalleryItem;
@@ -62,10 +63,78 @@ function GalleryItem({
   index: number;
   isMobile?: boolean;
   isUiUx?: boolean;
+  isOverview?: boolean;
   columns?: number;
 }) {
   const rotate = index % 2 === 0 ? -2 : 2;
   const label = String(index + 1).padStart(2, "0");
+
+  if (isOverview) {
+    return (
+      <motion.div
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: false, amount: 0.4 }}
+        transition={{ staggerChildren: 0.1, delayChildren: 0 }}
+        variants={{ hidden: {}, show: {} }}
+        className="mb-8 md:mb-10 w-full"
+      >
+        <motion.header
+          variants={{
+            hidden: { opacity: 0, y: 40 },
+            show: {
+              opacity: 1,
+              y: 0,
+              transition: { duration: 0.5, ease: revealEase },
+            },
+          }}
+          className="mx-auto mb-4 md:mb-5 w-fit max-w-full text-center"
+        >
+          <p className="font-body text-[12px] uppercase tracking-[0.12em] text-muted mb-1">
+            {label}
+          </p>
+          {item.caption ? (
+            <h2 className="font-display text-[20px] md:text-[24px] font-semibold text-ink">
+              {item.caption}
+            </h2>
+          ) : null}
+        </motion.header>
+        <motion.button
+          type="button"
+          onClick={onOpen}
+          variants={{
+            hidden: { opacity: 0, y: 60, scale: 0.9, rotate },
+            show: {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              rotate: 0,
+              transition: { duration: 0.6, ease: revealEase },
+            },
+          }}
+          className="mx-auto block w-full rounded-2xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
+        >
+          {item.type === "video" ? (
+            <video
+              src={item.src}
+              className="block w-full max-h-[60vh] object-contain"
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={item.src}
+              alt={alt}
+              className="block w-full max-h-[60vh] object-contain"
+            />
+          )}
+        </motion.button>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -74,7 +143,7 @@ function GalleryItem({
       viewport={{ once: false, amount: 0.4 }}
       transition={{ staggerChildren: 0.1, delayChildren: 0 }}
       variants={{ hidden: {}, show: {} }}
-      className={isMobile || isUiUx ? "mb-0" : "mb-10 md:mb-16"}
+      className={isMobile || isUiUx ? "mb-0 max-w-[280px]" : "mb-10 md:mb-16"}
     >
       <motion.header
         variants={{
@@ -114,13 +183,13 @@ function GalleryItem({
           },
         }}
         className={isMobile
-          ? "mx-auto block aspect-[9/16] w-full overflow-hidden rounded-xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink"
-          : `mx-auto block ${isUiUx ? "h-[50vh] w-fit max-w-full" : "h-[55vh] md:h-[62vh] w-fit max-w-full"} overflow-hidden rounded-2xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]`}
+          ? "mx-auto block w-full h-auto overflow-hidden rounded-xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink"
+          : `mx-auto block ${isUiUx ? "max-h-[50vh] max-w-full w-auto h-auto" : "h-[55vh] md:h-[62vh] w-fit max-w-full"} overflow-hidden rounded-2xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]`}
       >
         {item.type === "video" ? (
           <video
             src={item.src}
-             className={isMobile ? "block h-full w-full object-cover" : "block h-full w-auto object-contain"}
+            className={isMobile ? "block h-full w-full object-cover" : "block h-full w-auto object-contain"}
             autoPlay
             muted
             loop
@@ -131,7 +200,7 @@ function GalleryItem({
           <img
             src={item.src}
             alt={alt}
-             className={isMobile ? "block h-full w-full object-cover" : "block h-full w-auto object-contain"}
+            className={isMobile ? "block h-full w-full object-cover" : "block h-full w-auto object-contain"}
           />
         )}
       </motion.button>
@@ -175,7 +244,7 @@ export default function ProjectDetailPageClient({
       <div className="max-w-[1200px] mx-auto">
         <nav className="mb-8">
           <Link
-            href={`/work/${project.category}`}
+            href={project.category === "mobile" ? "/work/mobile" : "/work/web-uiux"}
             className={`font-body text-[12px] uppercase tracking-[0.12em] ${getAccentText(project.category)} hover:opacity-70 transition-opacity`}
           >
             &larr; Back to {getCategoryLabel(project.category)}
@@ -220,7 +289,7 @@ export default function ProjectDetailPageClient({
           ) : null}
         </header>
 
-        <div className="relative w-full h-[60vh] md:h-[65vh] rounded-2xl overflow-hidden border border-border mb-10 md:mb-12 bg-surface">
+         <div className="relative w-full h-[42vh] sm:h-[50vh] md:h-[65vh] rounded-2xl overflow-hidden border border-border mb-10 md:mb-12 bg-surface">
           {project.coverType === "video" ? (
             <video
               src={project.coverSrc}
@@ -252,21 +321,63 @@ export default function ProjectDetailPageClient({
           </motion.p>
         </section>
 
-        <section
-          className={`mb-14 md:mb-20 ${project.category === "mobile" ? `grid grid-cols-2 ${mobileColumns === 4 ? "md:grid-cols-4" : mobileColumns === 3 ? "md:grid-cols-3" : "md:grid-cols-2"} gap-x-3 gap-y-8 md:gap-x-5 md:gap-y-10` : project.category === "ui-ux" ? "flex flex-wrap items-start justify-center gap-8 md:gap-10" : ""}`}
-        >
-          {project.gallery.map((item, index) => (
-            <GalleryItem
-              key={item.src}
-              item={item}
-              alt={item.caption ?? project.title}
-              onOpen={() => setLightboxItem(item)}
-              index={index}
-              isMobile={project.category === "mobile"}
-              isUiUx={project.category === "ui-ux"}
-              columns={mobileColumns}
-            />
-          ))}
+        <section className="mb-14 md:mb-20">
+          {project.category === "ui-ux" ? (
+            <>
+              {project.gallery.length > 0 && (
+                <GalleryItem
+                  key={project.gallery[0].src}
+                  item={project.gallery[0]}
+                  alt={project.gallery[0].caption ?? project.title}
+                  onOpen={() => setLightboxItem(project.gallery[0])}
+                  index={0}
+                  isUiUx
+                  isOverview
+                  columns={mobileColumns}
+                />
+              )}
+              {project.gallery.length > 1 && (
+                <div className="flex flex-wrap items-start justify-center gap-8 md:gap-10">
+                  {project.gallery.slice(1).map((item, index) => (
+                    <GalleryItem
+                      key={item.src}
+                      item={item}
+                      alt={item.caption ?? project.title}
+                      onOpen={() => setLightboxItem(item)}
+                      index={index + 1}
+                      isUiUx
+                      columns={mobileColumns}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          ) : project.category === "mobile" ? (
+            <div className="flex flex-wrap items-start justify-center gap-8 md:gap-10">
+              {project.gallery.map((item, index) => (
+                <GalleryItem
+                  key={item.src}
+                  item={item}
+                  alt={item.caption ?? project.title}
+                  onOpen={() => setLightboxItem(item)}
+                  index={index}
+                  isMobile
+                  columns={mobileColumns}
+                />
+              ))}
+            </div>
+          ) : (
+            project.gallery.map((item, index) => (
+              <GalleryItem
+                key={item.src}
+                item={item}
+                alt={item.caption ?? project.title}
+                onOpen={() => setLightboxItem(item)}
+                index={index}
+                columns={mobileColumns}
+              />
+            ))
+          )}
         </section>
 
         <section className="mb-4">
