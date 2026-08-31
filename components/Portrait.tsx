@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import leftPortrait from "../images/left.avif";
-import rightPortrait from "../images/right.avif";
+import leftPortrait from "../images/left.png";
+import rightPortrait from "../images/right.png";
 
 interface PortraitProps {
   blend: number;
@@ -17,8 +17,8 @@ export default function Portrait({ blend }: PortraitProps) {
     <div
       className="relative bg-transparent w-full min-w-0 aspect-square h-auto md:w-auto md:aspect-[5/6] md:h-[45vh] lg:h-[48vh] xl:h-[76vh] 2xl:h-[88vh] 2xl:mt-[5vh]"
       style={{
-        boxShadow:
-          "0 40px 90px -32px rgba(2, 6, 23, 0.85), 0 18px 44px -22px rgba(30, 41, 59, 0.55)",
+        filter:
+          "drop-shadow(0 25px 50px rgba(2, 6, 23, 0.6)) drop-shadow(0 12px 28px rgba(30, 41, 59, 0.4))",
       }}
     >
       <Image
