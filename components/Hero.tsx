@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Portrait from "./Portrait";
+import PortraitIntroSequence from "./PortraitIntroSequence";
 import { useHoverSide } from "@/lib/useHoverSide";
 
 export default function Hero() {
@@ -27,7 +27,7 @@ export default function Hero() {
   const devColor = mixInkMuted(devT);
 
   return (
-    <section className="relative w-full px-6 py-6 md:py-8">
+    <section className="relative w-full overflow-x-clip px-6 py-6 md:py-8">
       {/* Edge vignette (behind content, subtle) */}
       <div
         aria-hidden
@@ -80,7 +80,7 @@ export default function Hero() {
             }}
           />
           <div className="relative">
-            <Portrait blend={blend} />
+            <PortraitIntroSequence blend={blend} />
         </div>
         </div>
 
