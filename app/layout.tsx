@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SocialRail from "@/components/SocialRail";
+import CustomCursor from "@/components/CustomCursor";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -17,6 +18,12 @@ const inter = Inter({
   variable: "--font-body",
 });
 
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
+});
+
 export const metadata: Metadata = {
   title: "Hussein Abdow | Portfolio",
   description: "I build what people use — and design how it feels.",
@@ -28,12 +35,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable}`}>
+    <html
+      lang="en"
+      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+    >
       <body className="bg-bg text-ink font-body antialiased min-h-screen">
         <Navbar />
         <SocialRail />
         {children}
         <Footer />
+        <CustomCursor />
         <div
           aria-hidden
           className="grain-overlay pointer-events-none fixed inset-0 z-[60]"

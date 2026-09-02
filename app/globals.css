@@ -35,6 +35,21 @@
   animation: status-dot-pulse 2s ease-in-out infinite;
 }
 
+/* Custom cursor (fine-pointer devices only — class is added/removed by CustomCursor.tsx).
+   Hide the native cursor everywhere... */
+html.custom-cursor-active body,
+html.custom-cursor-active body * {
+  cursor: none;
+}
+
+/* ...but keep the native text-editing cursor on form fields. */
+html.custom-cursor-active input,
+html.custom-cursor-active textarea,
+html.custom-cursor-active select,
+html.custom-cursor-active [contenteditable] {
+  cursor: auto;
+}
+
 * {
   box-sizing: border-box;
 }

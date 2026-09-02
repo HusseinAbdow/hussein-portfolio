@@ -30,7 +30,7 @@ export default function SelectedWork() {
           Selected Work
         </p>
         <h2 className="max-w-[760px] font-display text-[clamp(36px,6vw,72px)] leading-[0.95]">
-          Stuff I&apos;m actually proud to show off
+          A few projects worth sharing.
         </h2>
       </header>
       <motion.div

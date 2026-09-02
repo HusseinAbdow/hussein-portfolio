@@ -28,13 +28,18 @@ export default function ProjectCard({
   priority?: boolean;
 }) {
   return (
-    <motion.div variants={cardVariants}>
-      <Link href={`/work/${project.category}/${project.slug}`} className="block group">
+    <motion.div variants={cardVariants} className="h-full">
+      <Link
+        href={`/work/${project.category}/${project.slug}`}
+        className="block group h-full"
+        data-cursor-label="VIEW"
+      >
         <motion.article
           whileHover={{ scale: 1.02 }}
           transition={{ type: "spring", stiffness: 220, damping: 20 }}
-          className="rounded-2xl border border-border bg-surface/60 overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.02)] group-hover:shadow-[0_18px_50px_rgba(0,0,0,0.45)] transition-shadow"
+          className="h-full rounded-2xl border border-border bg-surface/60 overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.02)] group-hover:shadow-[0_18px_50px_rgba(0,0,0,0.45)] transition-shadow"
         >
+          {/* Fixed 16/10 cover box — media object-covers it, never dictates its shape */}
           <div className="relative aspect-[16/10] bg-surface">
             {project.coverType === "video" ? (
               <video
