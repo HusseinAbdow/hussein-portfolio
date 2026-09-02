@@ -20,7 +20,13 @@ function getTagTint(category: ProjectCategory): string {
   return "border-border text-muted";
 }
 
-export default function ProjectCard({ project }: { project: Project }) {
+export default function ProjectCard({
+  project,
+  priority = false,
+}: {
+  project: Project;
+  priority?: boolean;
+}) {
   return (
     <motion.div variants={cardVariants}>
       <Link href={`/work/${project.category}/${project.slug}`} className="block group">
@@ -45,6 +51,7 @@ export default function ProjectCard({ project }: { project: Project }) {
                 src={project.coverSrc}
                 alt={`${project.title} cover`}
                 fill
+                priority={priority}
                 sizes="(min-width: 768px) 50vw, 100vw"
                 className="object-cover"
               />

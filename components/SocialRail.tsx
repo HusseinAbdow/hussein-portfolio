@@ -19,6 +19,12 @@ export default function SocialRail() {
       return;
     }
 
+    // If the intro was already played this session, the loader never runs — show immediately.
+    if (window.sessionStorage.getItem("introPlayed")) {
+      setIsReady(true);
+      return;
+    }
+
     const handleIntroComplete = () => setIsReady(true);
     window.addEventListener(INTRO_COMPLETE_EVENT, handleIntroComplete);
     return () => window.removeEventListener(INTRO_COMPLETE_EVENT, handleIntroComplete);
@@ -27,17 +33,17 @@ export default function SocialRail() {
   return (
     <motion.nav
       aria-label="Social links"
-      initial={{ x: -20, opacity: 0 }}
-      animate={isReady ? { x: 0, opacity: 1 } : { x: -20, opacity: 0 }}
+      initial={{ x: -20, y: "-50%", opacity: 0 }}
+      animate={isReady ? { x: 0, y: "-50%", opacity: 1 } : { x: -20, y: "-50%", opacity: 0 }}
       transition={{ duration: shouldReduceMotion ? 0 : 0.5, ease: "easeOut" }}
-      className="fixed left-4 top-[calc(50%-12px)] z-30 hidden -translate-y-1/2 flex-col items-center gap-4 2xl:flex 2xl:left-6"
+      className="fixed left-4 top-[calc(50%-3rem)] z-30 hidden flex-col items-center gap-5 2xl:flex 2xl:left-6"
     >
       {socialLinks.map(({ href, label, icon: Icon, external }, index) => {
         const isHovered = hovered === index;
         // Deterministic pseudo-random duration in [2.5, 3.5)s so SSR and client match
         const bobDuration = 2.5 + ((index * 0.37 + 0.13) % 1);
         return (
-          <div key={label} className="flex flex-col items-center gap-3">
+          <div key={label} className="flex flex-col items-center gap-3.5">
             <motion.a
               href={href}
               aria-label={label}
@@ -67,9 +73,9 @@ export default function SocialRail() {
                   : "hover:text-accentDev focus-visible:outline-accentDev"
               }`}
             >
-              <Icon size={21} />
+              <Icon size={25} />
             </motion.a>
-            {index < socialLinks.length - 1 && <span aria-hidden className="h-8 w-px bg-border" />}
+            {index < socialLinks.length - 1 && <span aria-hidden className="h-10 w-px bg-border" />}
           </div>
         );
       })}

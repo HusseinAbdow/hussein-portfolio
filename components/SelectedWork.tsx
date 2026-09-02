@@ -19,6 +19,9 @@ export default function SelectedWork() {
     const project = projects.find((item) => item.slug === slug);
     return project ? [project] : [];
   });
+  const firstImageIndex = selectedProjects.findIndex(
+    (project) => project.coverType !== "video"
+  );
 
   return (
     <section className="bg-bg px-6 py-12 md:px-16 md:py-16">
@@ -37,8 +40,12 @@ export default function SelectedWork() {
         viewport={{ once: true, margin: "-100px" }}
         className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 md:grid-cols-2 md:gap-8"
       >
-        {selectedProjects.map((project) => (
-          <ProjectCard key={project.slug} project={project} />
+        {selectedProjects.map((project, index) => (
+          <ProjectCard
+            key={project.slug}
+            project={project}
+            priority={index === firstImageIndex}
+          />
         ))}
       </motion.div>
     </section>

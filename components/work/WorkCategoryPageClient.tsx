@@ -94,7 +94,13 @@ export default function WorkCategoryPageClient({
           viewport={{ once: true, margin: "-100px" }}
           className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8"
         >
-          {projects.map((project) => <ProjectCard key={project.slug} project={project} />)}
+          {projects.map((project, index) => (
+            <ProjectCard
+              key={project.slug}
+              project={project}
+              priority={index === projects.findIndex((p) => p.coverType !== "video")}
+            />
+          ))}
         </motion.section>
       )}
     </main>

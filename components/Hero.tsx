@@ -61,10 +61,10 @@ export default function Hero() {
             <div>DEVELOPER</div>
           </h2>
           <p
-            className="mt-5 max-w-[280px] font-body text-[13px] leading-relaxed text-muted max-md:hidden"
+            className="mt-5 max-w-[300px] font-body text-[clamp(14px,1.6vw,17px)] leading-relaxed text-muted max-md:hidden"
             style={{ opacity: uxOpacity, transition: "opacity 150ms linear" }}
           >
-            Designing the interface, then building the site or app that ships it.
+            I care about how a product feels — then I build the experience behind it.
           </p>
         </Link>
 
@@ -104,10 +104,10 @@ export default function Hero() {
               <div>APP Developer</div>
             </h2>
             <p
-              className="mt-5 max-w-[280px] font-body text-[13px] leading-relaxed text-muted max-md:hidden"
+              className="mt-5 max-w-[300px] font-body text-[clamp(14px,1.6vw,17px)] leading-relaxed text-muted max-md:hidden"
               style={{ opacity: devOpacity, transition: "opacity 150ms linear" }}
             >
-              Cross-platform apps in Flutter — real databases, real architecture, no shortcuts.
+              Building mobile products with real architecture, real data, and the user experience in mind.
             </p>
           </Link>
           <Link

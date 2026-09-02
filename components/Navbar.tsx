@@ -63,6 +63,7 @@ export default function Navbar() {
             alt="Hussein Abdow"
             width={46}
             height={46}
+            priority
             className="h-[42px] w-[42px] sm:h-[46px] sm:w-[46px] rounded-full border border-ink/20 object-cover object-center"
           />
         </Link>

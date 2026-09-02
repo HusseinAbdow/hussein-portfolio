@@ -127,7 +127,18 @@ function GalleryItem({
               transition: { duration: 0.6, ease: revealEase },
             },
           }}
-          className="mx-auto block w-full aspect-[16/10] overflow-hidden rounded-2xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
+          className="mx-auto block w-full overflow-hidden rounded-2xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
+          style={
+            item.type === "video"
+              ? { aspectRatio: "16 / 10" }
+              : {
+                  // Match the image's real aspect ratio so nothing is cropped (regression fix).
+                  aspectRatio: `${imageDimensions.width} / ${imageDimensions.height}`,
+                  maxWidth: `min(100%, calc(68vh * ${(
+                    imageDimensions.width / imageDimensions.height
+                  ).toFixed(4)}))`,
+                }
+          }
         >
           {item.type === "video" ? (
             <video
@@ -145,7 +156,8 @@ function GalleryItem({
               alt={alt}
               width={imageDimensions.width}
               height={imageDimensions.height}
-              className="block w-full max-h-[60vh] object-contain"
+              sizes="(min-width: 1248px) 1152px, 100vw"
+              className="block h-full w-full object-contain"
             />
           )}
         </motion.button>
@@ -234,6 +246,7 @@ export default function ProjectDetailPageClient({
   nextProject,
 }: ProjectDetailPageClientProps) {
   const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
+  const coverDimensions = getImageDimensions(project.coverSrc);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -310,7 +323,20 @@ export default function ProjectDetailPageClient({
           ) : null}
         </header>
 
-          <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden border border-border mb-10 md:mb-12 bg-surface">
+          <div
+            className="relative w-full mx-auto rounded-2xl overflow-hidden border border-border mb-10 md:mb-12 bg-surface"
+            style={
+              project.coverType === "video"
+                ? { aspectRatio: "16 / 10" }
+                : {
+                    // Match the cover's real aspect ratio so nothing is cropped (regression fix).
+                    aspectRatio: `${coverDimensions.width} / ${coverDimensions.height}`,
+                    maxWidth: `min(100%, calc(72vh * ${(
+                      coverDimensions.width / coverDimensions.height
+                    ).toFixed(4)}))`,
+                  }
+            }
+          >
             {project.coverType === "video" ? (
               <video
                 src={project.coverSrc}
@@ -326,8 +352,9 @@ export default function ProjectDetailPageClient({
                 src={project.coverSrc}
                 alt={`${project.title} hero`}
                 fill
-                sizes="100vw"
-                className="object-cover"
+                priority
+                sizes="(min-width: 1248px) 1152px, 100vw"
+                className="object-contain"
               />
             )}
         </div>
