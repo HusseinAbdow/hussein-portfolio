@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import type { Project, ProjectCategory } from "@/lib/projects";
 
@@ -37,9 +38,16 @@ export default function ProjectCard({ project }: { project: Project }) {
                 muted
                 loop
                 playsInline
+                preload="metadata"
               />
             ) : (
-              <img src={project.coverSrc} alt={`${project.title} cover`} className="h-full w-full object-cover" />
+              <Image
+                src={project.coverSrc}
+                alt={`${project.title} cover`}
+                fill
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="object-cover"
+              />
             )}
           </div>
           <div className="p-5 md:p-6">

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { socialLinks } from "@/lib/socialLinks";
 
 type FormState = { name: string; email: string; message: string; website: string };
 
@@ -61,7 +60,7 @@ export default function Contact() {
           Got a project, a role, or just a question? Send it over — I read everything.
         </p>
 
-        <div className="mt-12 grid gap-14 lg:grid-cols-[1fr_auto] lg:gap-20 items-start">
+        <div className="mt-12">
           <div className="min-w-0">
             <AnimatePresence mode="wait">
               {status === "success" ? (
@@ -189,56 +188,8 @@ export default function Contact() {
               )}
             </AnimatePresence>
           </div>
-
-          <FloatingSocialCluster />
         </div>
       </div>
     </section>
-  );
-}
-
-function FloatingSocialCluster() {
-  const [hovered, setHovered] = useState<number | null>(null);
-
-  return (
-    <div
-      aria-label="Social links"
-      className="flex lg:flex-col items-center justify-center gap-5 lg:gap-6 lg:py-10"
-    >
-      {socialLinks.map(({ href, label, icon: Icon, external }, i) => {
-        const isHovered = hovered === i;
-        return (
-          <motion.a
-            key={label}
-            href={href}
-            aria-label={label}
-            title={label}
-            onMouseEnter={() => setHovered(i)}
-            onMouseLeave={() => setHovered(null)}
-            onFocus={() => setHovered(i)}
-            onBlur={() => setHovered(null)}
-            {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-            animate={isHovered ? { y: 0, scale: 1.18 } : { y: [0, -6, 0], scale: 1 }}
-            transition={
-              isHovered
-                ? { duration: 0.2, ease: "easeOut" }
-                : {
-                    duration: 2.5 + i * 0.25,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: i * 0.4,
-                  }
-            }
-            className={`flex h-12 w-12 items-center justify-center rounded-full border border-border bg-surface text-muted shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
-              i % 2 === 0
-                ? "hover:text-accentUx focus-visible:outline-accentUx lg:-translate-x-3"
-                : "hover:text-accentDev focus-visible:outline-accentDev lg:translate-x-3"
-            }`}
-          >
-            <Icon size={20} />
-          </motion.a>
-        );
-      })}
-    </div>
   );
 }

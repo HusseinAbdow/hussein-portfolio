@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import type { Project } from "@/lib/projects";
@@ -45,6 +46,19 @@ function getTagTint(category: Project["category"]): string {
 
 type GalleryItem = Project["gallery"][number];
 
+function getImageDimensions(src: string) {
+  if (src.includes("timberfy") || src.includes("timberland-shoe-app")) {
+    return { width: 720, height: 1280 };
+  }
+  if (src.includes("konfab/all-screens")) return { width: 1600, height: 1294 };
+  if (src.includes("smart-road-safety/all-screens")) return { width: 2560, height: 957 };
+  if (src.includes("konfab") || src.includes("smart-road-safety")) {
+    return { width: 578, height: 1050 };
+  }
+  if (src.includes("vanlife")) return { width: 1919, height: 881 };
+  return { width: 1920, height: 1077 };
+}
+
 const revealEase = [0.22, 1, 0.36, 1] as const;
 
 function GalleryItem({
@@ -68,6 +82,7 @@ function GalleryItem({
 }) {
   const rotate = index % 2 === 0 ? -2 : 2;
   const label = String(index + 1).padStart(2, "0");
+  const imageDimensions = getImageDimensions(item.src);
 
   if (isOverview) {
     return (
@@ -112,22 +127,24 @@ function GalleryItem({
               transition: { duration: 0.6, ease: revealEase },
             },
           }}
-          className="mx-auto block w-full rounded-2xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
+          className="mx-auto block w-full aspect-[16/10] overflow-hidden rounded-2xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
         >
           {item.type === "video" ? (
             <video
               src={item.src}
-              className="block w-full max-h-[60vh] object-contain"
+              className="block h-full w-full object-contain"
               autoPlay
               muted
               loop
               playsInline
+              preload="metadata"
             />
           ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={item.src}
               alt={alt}
+              width={imageDimensions.width}
+              height={imageDimensions.height}
               className="block w-full max-h-[60vh] object-contain"
             />
           )}
@@ -182,24 +199,28 @@ function GalleryItem({
             },
           },
         }}
-        className={isMobile
-          ? "mx-auto block w-full h-auto overflow-hidden rounded-xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink"
-          : `mx-auto block ${isUiUx ? "max-h-[50vh] max-w-full w-auto h-auto" : "h-[55vh] md:h-[62vh] w-fit max-w-full"} overflow-hidden rounded-2xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]`}
+         className={isMobile
+           ? "mx-auto block w-full aspect-[9/16] max-w-[280px] overflow-hidden rounded-xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink"
+           : isUiUx
+             ? "mx-auto block w-full aspect-[9/16] max-w-full overflow-hidden rounded-xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink"
+           : "mx-auto block w-full aspect-[16/10] overflow-hidden rounded-2xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]"}
       >
         {item.type === "video" ? (
           <video
             src={item.src}
-            className={isMobile ? "block h-full w-full object-cover" : "block h-full w-auto object-contain"}
+            className="block h-full w-full object-contain"
             autoPlay
             muted
             loop
             playsInline
+            preload="metadata"
           />
         ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={item.src}
             alt={alt}
+            width={imageDimensions.width}
+            height={imageDimensions.height}
             className={isMobile ? "block h-full w-full object-cover" : "block h-full w-auto object-contain"}
           />
         )}
@@ -289,24 +310,26 @@ export default function ProjectDetailPageClient({
           ) : null}
         </header>
 
-         <div className="relative w-full h-[42vh] sm:h-[50vh] md:h-[65vh] rounded-2xl overflow-hidden border border-border mb-10 md:mb-12 bg-surface">
-          {project.coverType === "video" ? (
-            <video
-              src={project.coverSrc}
-              className="absolute inset-0 h-full w-full object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-            />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={project.coverSrc}
-              alt={`${project.title} hero`}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          )}
+          <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden border border-border mb-10 md:mb-12 bg-surface">
+            {project.coverType === "video" ? (
+              <video
+                src={project.coverSrc}
+                className="absolute inset-0 h-full w-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+              />
+            ) : (
+              <Image
+                src={project.coverSrc}
+                alt={`${project.title} hero`}
+                fill
+                sizes="100vw"
+                className="object-cover"
+              />
+            )}
         </div>
 
         <section className="max-w-[65ch] mb-12 md:mb-16">
@@ -431,23 +454,25 @@ export default function ProjectDetailPageClient({
               >
                 X Close
               </button>
-              <div className="rounded-2xl overflow-hidden border border-border bg-surface">
+              <div className="relative aspect-[16/10] rounded-2xl overflow-hidden border border-border bg-surface">
                 {lightboxItem.type === "video" ? (
                   <video
                     src={lightboxItem.src}
-                    className="w-full max-h-[80vh] object-contain"
+                    className="h-full w-full object-contain"
                     autoPlay
                     muted
                     loop
                     playsInline
+                    preload="metadata"
                     controls
                   />
                 ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={lightboxItem.src}
                     alt={lightboxItem.caption ?? project.title}
-                    className="w-full max-h-[80vh] object-contain"
+                    width={getImageDimensions(lightboxItem.src).width}
+                    height={getImageDimensions(lightboxItem.src).height}
+                    className="h-full w-full object-contain"
                   />
                 )}
               </div>

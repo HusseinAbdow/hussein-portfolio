@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import leftPortrait from "../images/left.png";
-import rightPortrait from "../images/right.png";
+import leftPortrait from "../images/left.webp";
+import rightPortrait from "../images/right.webp";
 
 interface PortraitProps {
   blend: number;
