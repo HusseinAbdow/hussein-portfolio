@@ -113,7 +113,7 @@ export default function Contact() {
                     </div>
                     <div className="flex flex-col gap-2">
                       <label htmlFor="contact-email" className="font-body text-xs font-medium tracking-[0.08em] uppercase text-muted">
-                        Email
+                       Your Emails
                       </label>
                       <input
                         id="contact-email"

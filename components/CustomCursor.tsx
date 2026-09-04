@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, useMotionValue } from "framer-motion";
 
-const LABEL_THROTTLE_MS = 90; // coordinate readout refresh cadence (rAF-driven)
-const DOT_SIZE = 6;
+// Reticle geometry: tight resting square, expanded "target lock" square on hover.
+const RETICLE_REST_SIZE = 26;
+const RETICLE_HOVER_SIZE = 44;
+const BRACKET_ARM = 10;
+const BRACKET_STROKE = 2;
+const LABEL_GAP = 8;
 
 type Accent = "ux" | "dev";
 
@@ -52,11 +56,9 @@ export default function CustomCursor() {
   const [visible, setVisible] = useState(false); // mouse has moved & is inside the viewport
   const [hover, setHover] = useState<HoverInfo | null>(null);
   const [overField, setOverField] = useState(false);
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
 
   const x = useMotionValue(-100);
   const y = useMotionValue(-100);
-  const lastLabelUpdate = useRef(0);
 
   // Pointer qualification + native-cursor hiding.
   useEffect(() => {
@@ -105,21 +107,6 @@ export default function CustomCursor() {
     const onLeaveViewport = () => setVisible(false);
     const onEnterViewport = () => setVisible(true);
 
-    // Throttled coordinate readout: rAF loop that only commits state every ~90ms.
-    let raf = 0;
-    const loop = (t: number) => {
-      if (t - lastLabelUpdate.current >= LABEL_THROTTLE_MS) {
-        lastLabelUpdate.current = t;
-        const nx = Math.round(x.get());
-        const ny = Math.round(y.get());
-        setCoords((prev) =>
-          prev.x === nx && prev.y === ny ? prev : { x: nx, y: ny }
-        );
-      }
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-
     window.addEventListener("mousemove", onMove, { passive: true });
     document.addEventListener("mouseover", onOver, true);
     document.addEventListener("mouseout", onOut, true);
@@ -127,7 +114,6 @@ export default function CustomCursor() {
     document.addEventListener("mouseenter", onEnterViewport);
 
     return () => {
-      cancelAnimationFrame(raf);
       window.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseover", onOver, true);
       document.removeEventListener("mouseout", onOut, true);
@@ -141,41 +127,94 @@ export default function CustomCursor() {
   const shown = visible && !overField;
   const accentColor =
     hover?.accent === "dev" ? "var(--accent-dev)" : "var(--accent-ux)";
-  const half = DOT_SIZE / 2;
+  const bracketColor = hover ? accentColor : "var(--ink)";
+  const size = hover ? RETICLE_HOVER_SIZE : RETICLE_REST_SIZE;
+  const half = size / 2;
+  const labelTop = half + LABEL_GAP;
+
+  // Two short perpendicular lines meeting at one corner of the targeting box.
+  const corners: Array<{
+    key: string;
+    className: string;
+    borders: React.CSSProperties;
+  }> = [
+    {
+      key: "tl",
+      className: "left-0 top-0",
+      borders: {
+        borderLeftWidth: BRACKET_STROKE,
+        borderTopWidth: BRACKET_STROKE,
+      },
+    },
+    {
+      key: "tr",
+      className: "right-0 top-0",
+      borders: {
+        borderRightWidth: BRACKET_STROKE,
+        borderTopWidth: BRACKET_STROKE,
+      },
+    },
+    {
+      key: "bl",
+      className: "left-0 bottom-0",
+      borders: {
+        borderLeftWidth: BRACKET_STROKE,
+        borderBottomWidth: BRACKET_STROKE,
+      },
+    },
+    {
+      key: "br",
+      className: "right-0 bottom-0",
+      borders: {
+        borderRightWidth: BRACKET_STROKE,
+        borderBottomWidth: BRACKET_STROKE,
+      },
+    },
+  ];
 
   return (
     <>
-      {/* Cursor dot — glued to the pointer tip via raw motion values (no lag) */}
+      {/* Targeting reticle — glued to the pointer via raw motion values (no lag) */}
       <motion.div
         aria-hidden
-        data-testid="custom-cursor-dot"
-        className="pointer-events-none fixed left-0 top-0 z-[100] rounded-full"
-        style={{
-          x,
-          y,
-          width: DOT_SIZE,
-          height: DOT_SIZE,
-          marginLeft: -half,
-          marginTop: -half,
-        }}
-        animate={{
-          opacity: shown ? 1 : 0,
-          scale: hover ? 1.8 : 1,
-          backgroundColor: hover ? accentColor : "var(--ink)",
-        }}
-        transition={{ duration: 0.15, ease: "easeOut" }}
-      />
-
-      {/* Monospace coordinate readout / contextual hover label */}
-      <motion.div
-        aria-hidden
-        data-testid="custom-cursor-label"
-        className="pointer-events-none fixed left-0 top-0 z-[100] whitespace-nowrap font-mono text-[11px] leading-none text-muted"
-        style={{ x, y, marginLeft: 16, marginTop: 16 }}
-        animate={{ opacity: shown ? 0.7 : 0 }}
-        transition={{ duration: 0.15, ease: "easeOut" }}
+        data-testid="custom-cursor-reticle"
+        className="pointer-events-none fixed left-0 top-0 z-[100]"
+        style={{ x, y }}
       >
-        {hover ? hover.label : `X:${coords.x} Y:${coords.y}`}
+        <motion.div
+          className="relative"
+          style={{ x: "-50%", y: "-50%" }}
+          animate={{
+            width: size,
+            height: size,
+            opacity: shown ? 0.8 : 0,
+          }}
+          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        >
+          {corners.map(({ key, className, borders }) => (
+            <motion.span
+              key={key}
+              className={`absolute ${className}`}
+              style={{ width: BRACKET_ARM, height: BRACKET_ARM, ...borders }}
+              animate={{ borderColor: bracketColor }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+            />
+          ))}
+        </motion.div>
+
+        {/* Contextual label — sits just below the expanded reticle box */}
+        <motion.div
+          data-testid="custom-cursor-label"
+          className="absolute left-0 whitespace-nowrap font-mono text-[11px] leading-none text-muted"
+          style={{ x: "-50%", top: labelTop }}
+          animate={{
+            opacity: shown && hover ? 0.9 : 0,
+            y: hover ? 2 : -2,
+          }}
+          transition={{ duration: 0.15, ease: "easeOut" }}
+        >
+          {hover ? hover.label : ""}
+        </motion.div>
       </motion.div>
     </>
   );
