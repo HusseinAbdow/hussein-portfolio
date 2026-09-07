@@ -7,6 +7,9 @@ export interface Project {
   year: number;
   summary: string;
   description: string;
+  tagline?: string;
+  builtItems?: string[];
+  challenge?: string;
   tags: string[];
   repoUrl?: string;
   figmaUrl?: string;
@@ -26,6 +29,15 @@ export const projects: Project[] = [
       "A Flutter shopping app for browsing and buying Timberland-style footwear, backed by a local PostgreSQL database.",
     description:
       "Timberfy is a Flutter e-commerce app inspired by Timberland-style footwear. Users can browse shoes by gender and category, view detailed product pages with multiple images, like favorites, and manage a shopping cart — all built on a clean, reusable component architecture with a local PostgreSQL database for persistence.",
+    tagline:
+      "A Flutter shopping app for browsing and buying Timberland-style footwear.",
+    builtItems: [
+      "Built product browsing by gender and category, with detailed multi-image product pages",
+      "Implemented cart and favorites backed by a local PostgreSQL database",
+      "Structured the app with reusable, scalable Flutter components",
+    ],
+    challenge:
+      "The main challenge was keeping cart and favorites state in sync across screens without prop-drilling — I used a shared state layer so the UI stayed consistent as users navigated the app.",
     tags: ["Flutter", "PostgreSQL", "Mobile UI"],
     techStack: ["Flutter", "PostgreSQL", "Mobile UI"],
     repoUrl: "https://github.com/HusseinAbdow/timberfy",
@@ -47,6 +59,15 @@ export const projects: Project[] = [
       "A car leasing platform for browsing available vehicles, managing active leases, and reviewing customer feedback.",
     description:
       "VanLife is a full-stack car leasing website built with PHP, HTML, and CSS. It lets users browse available vehicles with detailed specs, view and manage active leases, and read customer reviews — combining a clean, browsable catalog experience with practical account/lease management.",
+    tagline:
+      "A full-stack car leasing platform for browsing vehicles and managing leases.",
+    builtItems: [
+      "Built the vehicle catalog with detailed specs and availability",
+      "Implemented active lease tracking and a customer review system",
+      "Combined PHP backend logic with a clean, browsable front-end",
+    ],
+    challenge:
+      "The main challenge was keeping lease data consistent — availability, active leases, and reviews all needed to stay in sync as users interacted with the same vehicle from different pages.",
     tags: ["PHP", "HTML", "CSS"],
     techStack: ["PHP", "HTML", "CSS"],
     repoUrl: "https://github.com/HusseinAbdow/vanlife",
@@ -94,6 +115,15 @@ export const projects: Project[] = [
       "An earlier, simpler Flutter e-commerce UI for browsing Timberland boots and managing a cart.",
     description:
       "Timberland Shoe App is a Flutter e-commerce UI for browsing Timberland boots and managing a shopping cart, built with a clean Provider-based state architecture. It was the first version of this concept, later expanded into the more complete Timberfy. The app uses ChangeNotifier/Consumer for reactive cart state and google_nav_bar for animated Shop and Cart navigation.",
+    tagline:
+      "An earlier, simpler Flutter e-commerce UI for browsing Timberland boots and managing a cart.",
+    builtItems: [
+      "Built product browsing and a shopping cart with Provider-based state management",
+      "Practiced clean navigation between product and cart screens",
+      "Laid the groundwork that Timberfy later expanded on",
+    ],
+    challenge:
+      "This was my first attempt at managing shared app state in Flutter — working with Provider here is what led me to build Timberfy's more complete architecture afterward.",
     tags: ["Flutter", "Provider", "Mobile UI"],
     techStack: ["Flutter", "Provider", "Mobile UI"],
     repoUrl: "https://github.com/HusseinAbdow/timberland-shoe-shop",
@@ -113,6 +143,15 @@ export const projects: Project[] = [
       "A lightweight sticky-note style task board where users create, complete, and organize their day at a glance.",
     description:
       "Sticky Wall is a full-stack task management app built with Node.js, Express, and Firebase Firestore. Each user gets a personal, sticky-note styled dashboard for creating tasks, marking them complete, and keeping pending and finished work clearly separated — a simple, visual take on the classic to-do list.",
+    tagline:
+      "A sticky-note styled task board for creating, completing, and organizing tasks.",
+    builtItems: [
+      "Built a Node.js and Express backend with Firebase Firestore for real-time data",
+      "Implemented per-user task boards with pending/completed separation",
+      "Designed the sticky-note visual metaphor for the dashboard",
+    ],
+    challenge:
+      "The main challenge was keeping each user's task board isolated and fast — I structured Firestore queries per-user so reads stay quick as a board grows.",
     tags: ["Node.js", "Express", "Firebase Firestore"],
     techStack: ["Node.js", "Express", "Firebase Firestore"],
     repoUrl: "https://github.com/HusseinAbdow/sticky-wall",
@@ -134,6 +173,15 @@ export const projects: Project[] = [
       "An early-stage community platform concept helping university students organize discussions by interest instead of scattered group chats.",
     description:
       "Konfab is an in-progress concept for a community-based academic discussion platform. Students can create and join communities around specific interests — a course, a subject, a hobby — instead of relying on scattered, disorganized group chats for academic communication. The project is in early design stages, with full development planned over the following months.",
+    tagline:
+      "An early-stage concept for a community-based academic discussion platform.",
+    builtItems: [
+      "Designed the core information architecture: communities, posts, comments, and messaging",
+      "Mapped user flows for creating and joining interest-based communities",
+      "Iterated every screen in Figma from wireframe to polished UI",
+    ],
+    challenge:
+      "The main design challenge was replacing scattered group chats with a structure students would actually adopt — organizing communities by interest rather than by class or course code.",
     tags: ["Figma", "UI Design", "Community Platform"],
     figmaUrl:
       "https://www.figma.com/design/McO1lCKaMKdoXFj1R8frxX/Konfab-University-Community-App?node-id=0-1&p=f&t=BR0TQD3atsDoOSeg-0",
@@ -160,6 +208,14 @@ export const projects: Project[] = [
       "A cross-platform to-do app with full CRUD task management, backed by a real PostgreSQL database.",
     description:
       "A To-Do List application built with Flutter and PostgreSQL, demonstrating full CRUD task management with a focus on simplicity, productivity, and a modern UI.",
+    tagline: "A cross-platform to-do app with full CRUD task management.",
+    builtItems: [
+      "Built full create, read, update, and delete task flows backed by PostgreSQL",
+      "Focused the UI on simplicity and fast interaction",
+      "Practiced clean Flutter architecture end-to-end",
+    ],
+    challenge:
+      "The main challenge was keeping the UI simple while still supporting full CRUD without extra screens slowing down quick task entry.",
     tags: ["Flutter", "PostgreSQL", "CRUD"],
     techStack: ["Flutter", "PostgreSQL", "CRUD"],
     repoUrl: "https://github.com/HusseinAbdow/to-do-app",
@@ -180,6 +236,15 @@ export const projects: Project[] = [
       "A UI/UX concept for an AI-powered road surveillance app, designed for a university 5G and AI competition.",
     description:
       "This is a lo-fi UI/UX concept designed for a university competition combining 5G networks, Network APIs, and AI for real-world applications. The brief asked teams to use network resources dynamically and deliver value through AI-based real-time analysis — this concept applies that to road safety, with a camera-based monitoring interface, incident history, and analysis views.",
+    tagline:
+      "A UI/UX concept for an AI-powered road surveillance app, built for a university 5G and AI competition.",
+    builtItems: [
+      "Designed the core monitoring flow: live camera view, detection results, and alerts",
+      "Mapped history and analysis views for reviewing past incidents",
+      "Built the concept around real-time AI detection results",
+    ],
+    challenge:
+      "The main design challenge was presenting dense AI detection data — vehicle, driver, phone-use, smoking detection — without overwhelming the primary live-monitoring view.",
     tags: ["Figma", "UI Design", "AI Concept"],
     figmaUrl:
       "https://www.figma.com/design/RMjJZqt0EzlF5udkxiQlNA/Road-survalience-with-AI?node-id=0-1&p=f",

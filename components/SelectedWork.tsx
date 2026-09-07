@@ -1,18 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { projects } from "@/lib/projects";
 import ProjectCard from "@/components/work/ProjectCard";
+import ScrollReveal from "@/components/ScrollReveal";
 
 const selectedSlugs = ["vanlife", "konfab", "timberfy", "sticky-wall"];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.08 },
-  },
-};
 
 export default function SelectedWork() {
   const selectedProjects = selectedSlugs.flatMap((slug) => {
@@ -33,21 +25,22 @@ export default function SelectedWork() {
           A few projects worth sharing.
         </h2>
       </header>
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, margin: "-100px" }}
-        className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 md:grid-cols-2 md:gap-8"
-      >
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
         {selectedProjects.map((project, index) => (
-          <ProjectCard
+          <ScrollReveal
             key={project.slug}
-            project={project}
-            priority={index === firstImageIndex}
-          />
+            delay={80 + index * 80}
+            distance={16}
+            duration={450}
+            className="h-full"
+          >
+            <ProjectCard
+              project={project}
+              priority={index === firstImageIndex}
+            />
+          </ScrollReveal>
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 }

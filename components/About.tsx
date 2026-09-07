@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import ScrollReveal from "@/components/ScrollReveal";
 
 type Block =
   | { kind: "quote"; text: string }
@@ -100,15 +100,15 @@ export default function About() {
             key={i}
             className="flex min-h-0 items-center px-6 py-10 sm:px-10 md:min-h-[78vh] md:py-0 md:pl-[14vw] md:pr-16"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false, amount: 0.4 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
+            <ScrollReveal
+              distance={32}
+              duration={600}
+              threshold={0.4}
+              ease="ease-out"
               className={blockClasses[block.kind]}
             >
               {block.text}
-            </motion.div>
+            </ScrollReveal>
           </div>
         ))}
       </div>

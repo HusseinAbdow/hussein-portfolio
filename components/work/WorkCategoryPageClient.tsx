@@ -1,9 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
 import type { Project } from "@/lib/projects";
 import ProjectCard from "@/components/work/ProjectCard";
+import ScrollReveal from "@/components/ScrollReveal";
 
 type WorkFilter = "all" | "web-uiux" | "mobile";
 
@@ -17,17 +17,6 @@ const filters: Array<{ key: WorkFilter; label: string }> = [
   { key: "web-uiux", label: "Web & UI/UX" },
   { key: "mobile", label: "Mobile" },
 ];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.08,
-    },
-  },
-};
 
 function getCategoryLabel(category: WorkFilter): string {
   if (category === "all") return "All Work";
@@ -87,21 +76,22 @@ export default function WorkCategoryPageClient({
           </p>
         </section>
       ) : (
-        <motion.section
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
-          className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8"
-        >
+        <section className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {projects.map((project, index) => (
-            <ProjectCard
+            <ScrollReveal
               key={project.slug}
-              project={project}
-              priority={index === projects.findIndex((p) => p.coverType !== "video")}
-            />
+              delay={80 + index * 80}
+              distance={16}
+              duration={450}
+              className="h-full"
+            >
+              <ProjectCard
+                project={project}
+                priority={index === projects.findIndex((p) => p.coverType !== "video")}
+              />
+            </ScrollReveal>
           ))}
-        </motion.section>
+        </section>
       )}
     </main>
   );

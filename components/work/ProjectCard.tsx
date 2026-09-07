@@ -3,22 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import type { Project, ProjectCategory } from "@/lib/projects";
-
-export const cardVariants = {
-  hidden: { opacity: 0, y: 16 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
-  },
-};
-
-function getTagTint(category: ProjectCategory): string {
-  if (category === "ui-ux") return "border-accentUx/40 text-accentUx";
-  if (category === "mobile") return "border-accentDev/40 text-accentDev";
-  return "border-border text-muted";
-}
+import type { Project } from "@/lib/projects";
 
 export default function ProjectCard({
   project,
@@ -28,11 +13,10 @@ export default function ProjectCard({
   priority?: boolean;
 }) {
   return (
-    <motion.div variants={cardVariants} className="h-full">
+    <div className="h-full">
       <Link
         href={`/work/${project.category}/${project.slug}`}
         className="block group h-full"
-        data-cursor-label="VIEW"
       >
         <motion.article
           whileHover={{ scale: 1.02 }}
@@ -73,7 +57,7 @@ export default function ProjectCard({
               {project.tags.map((tag) => (
                 <span
                   key={`${project.slug}-${tag}`}
-                  className={`font-body text-[11px] uppercase tracking-[0.08em] px-2.5 py-1 rounded-full border ${getTagTint(project.category)}`}
+                  className="font-body text-[11px] uppercase tracking-[0.08em] px-2.5 py-1 rounded-full border-[1.5px] border-accentUx/60 bg-accentUx/5 text-accentUx"
                 >
                   {tag}
                 </span>
@@ -82,6 +66,6 @@ export default function ProjectCard({
           </div>
         </motion.article>
       </Link>
-    </motion.div>
+    </div>
   );
 }

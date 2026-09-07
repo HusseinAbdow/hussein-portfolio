@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { ExternalLink } from "lucide-react";
+import { CheckCircle2, ExternalLink } from "lucide-react";
 import type { Project } from "@/lib/projects";
+import ScrollReveal from "@/components/ScrollReveal";
+import { SCROLL_REVEAL_EASE, useScrollReveal } from "@/lib/useScrollReveal";
 
 function GithubIcon({ size = 16 }: { size?: number }) {
   return (
@@ -38,13 +41,13 @@ function getAccentText(category: Project["category"]): string {
   return "text-muted";
 }
 
-function getTagTint(category: Project["category"]): string {
-  if (category === "ui-ux") return "border-accentUx/40 text-accentUx";
-  if (category === "mobile") return "border-accentDev/40 text-accentDev";
-  return "border-border text-muted";
-}
-
 type GalleryItem = Project["gallery"][number];
+
+const tagPillClasses =
+  "font-body text-[11px] uppercase tracking-[0.08em] px-2.5 py-1 rounded-full border-[1.5px] border-accentUx/60 bg-accentUx/5 text-accentUx";
+
+const eyebrowClasses =
+  "font-body text-[12px] uppercase tracking-[0.12em] text-muted mb-3";
 
 function getImageDimensions(src: string) {
   if (src.includes("timberfy") || src.includes("timberland-shoe-app")) {
@@ -80,29 +83,35 @@ function GalleryItem({
   isOverview?: boolean;
   columns?: number;
 }) {
+  const { ref, isVisible } = useScrollReveal<HTMLDivElement>({
+    threshold: 0.4,
+  });
   const rotate = index % 2 === 0 ? -2 : 2;
   const label = String(index + 1).padStart(2, "0");
   const imageDimensions = getImageDimensions(item.src);
 
+  const headerStyle: CSSProperties = {
+    opacity: isVisible ? 1 : 0,
+    transform: isVisible ? "none" : "translateY(40px)",
+    transition: `opacity 500ms ${SCROLL_REVEAL_EASE}, transform 500ms ${SCROLL_REVEAL_EASE}`,
+  };
+
+  const buttonDelay = isOverview
+    ? 100
+    : 100 + (isMobile ? (index % columns) * 100 : 0);
+  const buttonStyle: CSSProperties = {
+    opacity: isVisible ? 1 : 0,
+    transform: isVisible
+      ? "none"
+      : `translateY(60px) scale(0.9) rotate(${rotate}deg)`,
+    transition: `opacity 600ms ${SCROLL_REVEAL_EASE} ${buttonDelay}ms, transform 600ms ${SCROLL_REVEAL_EASE} ${buttonDelay}ms`,
+  };
+
   if (isOverview) {
     return (
-      <motion.div
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: false, amount: 0.4 }}
-        transition={{ staggerChildren: 0.1, delayChildren: 0 }}
-        variants={{ hidden: {}, show: {} }}
-        className="mb-8 md:mb-10 w-full"
-      >
-        <motion.header
-          variants={{
-            hidden: { opacity: 0, y: 40 },
-            show: {
-              opacity: 1,
-              y: 0,
-              transition: { duration: 0.5, ease: revealEase },
-            },
-          }}
+      <div ref={ref} className="mb-8 md:mb-10 w-full">
+        <header
+          style={headerStyle}
           className="mx-auto mb-4 md:mb-5 w-fit max-w-full text-center"
         >
           <p className="font-body text-[12px] uppercase tracking-[0.12em] text-muted mb-1">
@@ -113,23 +122,14 @@ function GalleryItem({
               {item.caption}
             </h2>
           ) : null}
-        </motion.header>
-        <motion.button
+        </header>
+        <button
           type="button"
           onClick={onOpen}
-          variants={{
-            hidden: { opacity: 0, y: 60, scale: 0.9, rotate },
-            show: {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotate: 0,
-              transition: { duration: 0.6, ease: revealEase },
-            },
-          }}
           className="mx-auto block w-full overflow-hidden rounded-2xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
-          style={
-            item.type === "video"
+          style={{
+            ...buttonStyle,
+            ...(item.type === "video"
               ? { aspectRatio: "16 / 10" }
               : {
                   // Match the image's real aspect ratio so nothing is cropped (regression fix).
@@ -137,8 +137,8 @@ function GalleryItem({
                   maxWidth: `min(100%, calc(68vh * ${(
                     imageDimensions.width / imageDimensions.height
                   ).toFixed(4)}))`,
-                }
-          }
+                }),
+          }}
         >
           {item.type === "video" ? (
             <video
@@ -160,29 +160,18 @@ function GalleryItem({
               className="block h-full w-full object-contain"
             />
           )}
-        </motion.button>
-      </motion.div>
+        </button>
+      </div>
     );
   }
 
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: false, amount: 0.4 }}
-      transition={{ staggerChildren: 0.1, delayChildren: 0 }}
-      variants={{ hidden: {}, show: {} }}
+    <div
+      ref={ref}
       className={isMobile || isUiUx ? "mb-0 max-w-[280px]" : "mb-10 md:mb-16"}
     >
-      <motion.header
-        variants={{
-          hidden: { opacity: 0, y: 40 },
-          show: {
-            opacity: 1,
-            y: 0,
-            transition: { duration: 0.5, ease: revealEase },
-          },
-        }}
+      <header
+        style={headerStyle}
         className={`mx-auto ${isMobile ? "mb-3" : "mb-4 md:mb-5"} w-fit max-w-full text-center`}
       >
         <p className="font-body text-[12px] uppercase tracking-[0.12em] text-muted mb-1">
@@ -193,24 +182,11 @@ function GalleryItem({
             {item.caption}
           </h2>
         ) : null}
-      </motion.header>
-      <motion.button
+      </header>
+      <button
         type="button"
         onClick={onOpen}
-        variants={{
-          hidden: { opacity: 0, y: 60, scale: 0.9, rotate },
-          show: {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            rotate: 0,
-            transition: {
-              duration: 0.6,
-              ease: revealEase,
-              delay: isMobile ? (index % columns) * 0.1 : 0,
-            },
-          },
-        }}
+        style={buttonStyle}
          className={isMobile
            ? "mx-auto block w-full aspect-[9/16] max-w-[280px] overflow-hidden rounded-xl border border-border bg-surface cursor-pointer focus:outline-none focus-visible:border-ink"
            : isUiUx
@@ -236,8 +212,8 @@ function GalleryItem({
             className={isMobile ? "block h-full w-full object-cover" : "block h-full w-auto object-contain"}
           />
         )}
-      </motion.button>
-    </motion.div>
+      </button>
+    </div>
   );
 }
 
@@ -247,6 +223,7 @@ export default function ProjectDetailPageClient({
 }: ProjectDetailPageClientProps) {
   const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
   const coverDimensions = getImageDimensions(project.coverSrc);
+  const nextReveal = useScrollReveal<HTMLElement>({ threshold: 0.15 });
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -289,41 +266,136 @@ export default function ProjectDetailPageClient({
           <h1 className="font-display text-[clamp(36px,6vw,72px)] leading-[0.95] uppercase mb-4">
             {project.title}
           </h1>
-          <p className="font-body text-[14px] text-muted mb-5">{project.year}</p>
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            {(project.techStack ?? project.tags).map((tag) => (
-              <span
-                key={tag}
-                className={`font-body text-[11px] uppercase tracking-[0.08em] px-2.5 py-1 rounded-full border ${getTagTint(project.category)}`}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-          {project.repoUrl ? (
-            <a
-              href={project.repoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 font-body text-[12px] font-medium tracking-[0.1em] uppercase text-ink border border-accentDev/60 rounded-full px-4 py-2 transition-colors hover:bg-accentDev hover:text-bg"
-            >
-              <GithubIcon size={14} />
-              <span>View on GitHub</span>
-            </a>
-          ) : project.figmaUrl ? (
-            <a
-              href={project.figmaUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 font-body text-[12px] font-medium tracking-[0.1em] uppercase text-ink border border-accentUx/60 rounded-full px-4 py-2 transition-colors hover:bg-accentUx hover:text-bg"
-            >
-              <ExternalLink size={14} />
-              <span>View in Figma</span>
-            </a>
-          ) : null}
         </header>
 
-          <div
+        {project.tagline && project.builtItems && project.challenge ? (
+          <section className="mb-10 md:mb-14">
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-14">
+              <div>
+                <ScrollReveal distance={30} duration={600}>
+                  <p className="font-display text-[clamp(20px,2.5vw,28px)] font-bold leading-snug text-ink mb-8 md:mb-10">
+                    {project.tagline}
+                  </p>
+                </ScrollReveal>
+
+                <ScrollReveal distance={30} duration={600} className="mb-8 md:mb-10">
+                  <p className={`${eyebrowClasses}`}>What I Built</p>
+                  <ul className="space-y-3">
+                    {project.builtItems.map((item) => (
+                      <li
+                        key={item}
+                        className="flex items-start gap-2.5 font-body text-[15px] md:text-[16px] leading-relaxed text-ink/90"
+                      >
+                        <CheckCircle2
+                          size={16}
+                          aria-hidden
+                          className="mt-[5px] shrink-0 text-accentUx"
+                        />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </ScrollReveal>
+
+                <ScrollReveal distance={30} duration={600}>
+                  <p className={`${eyebrowClasses}`}>The Challenge</p>
+                  <p className="border-l-2 border-accentUx pl-4 font-body text-[15px] md:text-[16px] leading-relaxed text-ink/90">
+                    {project.challenge}
+                  </p>
+                </ScrollReveal>
+              </div>
+
+              <aside className="self-start lg:sticky lg:top-24">
+                <ScrollReveal
+                  distance={30}
+                  duration={600}
+                  className="rounded-2xl border border-border bg-surface p-6"
+                >
+                  <p className={`${eyebrowClasses} mb-2`}>Project Info</p>
+                  <p
+                    className={`font-body text-[12px] uppercase tracking-[0.12em] ${getAccentText(project.category)} mb-3`}
+                  >
+                    {getCategoryLabel(project.category)}
+                  </p>
+                  <p className="font-body text-[14px] text-muted mb-4">
+                    {project.year}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-5">
+                    {(project.techStack ?? project.tags).map((tag) => (
+                      <span key={tag} className={tagPillClasses}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  {project.repoUrl ? (
+                    <a
+                      href={project.repoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 font-body text-[12px] font-medium tracking-[0.1em] uppercase text-ink border border-accentDev/60 rounded-full px-4 py-2 transition-colors hover:bg-accentDev hover:text-bg"
+                    >
+                      <GithubIcon size={14} />
+                      <span>View on GitHub</span>
+                    </a>
+                  ) : project.figmaUrl ? (
+                    <a
+                      href={project.figmaUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 font-body text-[12px] font-medium tracking-[0.1em] uppercase text-ink border border-accentUx/60 rounded-full px-4 py-2 transition-colors hover:bg-accentUx hover:text-bg"
+                    >
+                      <ExternalLink size={14} />
+                      <span>View in Figma</span>
+                    </a>
+                  ) : null}
+                </ScrollReveal>
+              </aside>
+            </div>
+          </section>
+        ) : (
+          <>
+            <p className="font-body text-[14px] text-muted mb-5">
+              {project.year}
+            </p>
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              {(project.techStack ?? project.tags).map((tag) => (
+                <span key={tag} className={tagPillClasses}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+            {project.repoUrl ? (
+              <a
+                href={project.repoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 font-body text-[12px] font-medium tracking-[0.1em] uppercase text-ink border border-accentDev/60 rounded-full px-4 py-2 transition-colors hover:bg-accentDev hover:text-bg"
+              >
+                <GithubIcon size={14} />
+                <span>View on GitHub</span>
+              </a>
+            ) : project.figmaUrl ? (
+              <a
+                href={project.figmaUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 font-body text-[12px] font-medium tracking-[0.1em] uppercase text-ink border border-accentUx/60 rounded-full px-4 py-2 transition-colors hover:bg-accentUx hover:text-bg"
+              >
+                <ExternalLink size={14} />
+                <span>View in Figma</span>
+              </a>
+            ) : null}
+            <section className="max-w-[65ch] mb-12 md:mb-16">
+              <ScrollReveal distance={30} duration={600}>
+                <p className="font-body text-[15px] md:text-[16px] leading-relaxed text-ink/90">
+                  {project.description}
+                </p>
+              </ScrollReveal>
+            </section>
+          </>
+        )}
+
+        <div
             className="relative w-full mx-auto rounded-2xl overflow-hidden border border-border mb-10 md:mb-12 bg-surface"
             style={
               project.coverType === "video"
@@ -358,18 +430,6 @@ export default function ProjectDetailPageClient({
               />
             )}
         </div>
-
-        <section className="max-w-[65ch] mb-12 md:mb-16">
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: revealEase }}
-            className="font-body text-[15px] md:text-[16px] leading-relaxed text-ink/90"
-          >
-            {project.description}
-          </motion.p>
-        </section>
 
         <section className="mb-14 md:mb-20">
           {project.category === "ui-ux" ? (
@@ -433,9 +493,13 @@ export default function ProjectDetailPageClient({
         <section className="mb-4">
           <Link href={`/work/${nextProject.category}/${nextProject.slug}`} className="block group">
             <motion.article
-              initial={{ opacity: 0, y: 40, scale: 0.95 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: false, amount: 0.3 }}
+              ref={nextReveal.ref}
+              initial={false}
+              animate={{
+                opacity: nextReveal.isVisible ? 1 : 0,
+                y: nextReveal.isVisible ? 0 : 40,
+                scale: nextReveal.isVisible ? 1 : 0.95,
+              }}
               transition={{ duration: 0.6, ease: revealEase }}
               whileHover={{ scale: 1.02 }}
               className="rounded-2xl border border-border bg-surface/60 overflow-hidden p-6 md:p-8 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] group-hover:shadow-[0_18px_50px_rgba(0,0,0,0.45)] transition-shadow"
