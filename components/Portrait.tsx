@@ -3,6 +3,7 @@
 import Image from "next/image";
 import leftPortrait from "../images/left.webp";
 import rightPortrait from "../images/right.webp";
+import mobilePortrait from "../images/mobile-potrait.png";
 
 interface PortraitProps {
   blend: number;
@@ -21,7 +22,18 @@ export default function Portrait({ blend }: PortraitProps) {
           "drop-shadow(0 25px 50px rgba(2, 6, 23, 0.6)) drop-shadow(0 12px 28px rgba(30, 41, 59, 0.4))",
       }}
     >
-      <div className="absolute inset-0" style={{ clipPath: leftClip }}>
+      <div className="absolute inset-0 md:hidden">
+        <Image
+          src={mobilePortrait}
+          alt="Hussein Abdow, UI/UX and mobile developer portrait"
+          fill
+          priority
+          sizes="(max-width: 767px) 60vw"
+          className="absolute inset-0 object-contain"
+        />
+      </div>
+
+      <div className="absolute inset-0 hidden md:block" style={{ clipPath: leftClip }}>
         <Image
           src={leftPortrait}
           alt="Hussein Abdow, UI/UX developer portrait"
@@ -35,7 +47,7 @@ export default function Portrait({ blend }: PortraitProps) {
         />
       </div>
 
-      <div className="absolute inset-0" style={{ clipPath: rightClip }}>
+      <div className="absolute inset-0 hidden md:block" style={{ clipPath: rightClip }}>
         <Image
           src={rightPortrait}
           alt="Hussein Abdow, mobile developer portrait"
