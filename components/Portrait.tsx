@@ -21,31 +21,33 @@ export default function Portrait({ blend }: PortraitProps) {
           "drop-shadow(0 25px 50px rgba(2, 6, 23, 0.6)) drop-shadow(0 12px 28px rgba(30, 41, 59, 0.4))",
       }}
     >
-      <Image
-        src={leftPortrait}
-        alt="Hussein Abdow, UI/UX developer portrait"
-        fill
-        priority
-        sizes="(max-width: 768px) 80vw, (max-width: 1280px) 40vh, 70vh"
-        className="absolute inset-0 object-cover"
-        style={{
-          clipPath: leftClip,
-          objectPosition: "50% 12%",
-        }}
-      />
+      <div className="absolute inset-0" style={{ clipPath: leftClip }}>
+        <Image
+          src={leftPortrait}
+          alt="Hussein Abdow, UI/UX developer portrait"
+          fill
+          priority
+          sizes="(max-width: 768px) 80vw, (max-width: 1280px) 40vh, 70vh"
+          className="absolute inset-0 object-cover"
+          style={{
+            objectPosition: "50% 12%",
+          }}
+        />
+      </div>
 
-      <Image
-        src={rightPortrait}
-        alt="Hussein Abdow, mobile developer portrait"
-        fill
-        priority
-        sizes="(max-width: 768px) 80vw, (max-width: 1280px) 40vh, 70vh"
-        className="absolute inset-0 object-cover"
-        style={{
-          clipPath: rightClip,
-          objectPosition: "50% 12%",
-        }}
-      />
+      <div className="absolute inset-0" style={{ clipPath: rightClip }}>
+        <Image
+          src={rightPortrait}
+          alt="Hussein Abdow, mobile developer portrait"
+          fill
+          priority
+          sizes="(max-width: 768px) 80vw, (max-width: 1280px) 40vh, 70vh"
+          className="absolute inset-0 object-cover !-top-[5px] !h-[calc(100%+5px)]"
+          style={{
+            objectPosition: "50% 22%",
+          }}
+        />
+      </div>
     </div>
   );
 }
