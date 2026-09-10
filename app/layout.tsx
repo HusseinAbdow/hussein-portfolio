@@ -3,6 +3,7 @@ import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SocialRail from "@/components/SocialRail";
+import CustomCursor from "@/components/CustomCursor";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -41,6 +42,7 @@ export default function RootLayout({
       <body className="bg-bg text-ink font-body antialiased min-h-screen">
         <Navbar />
         <SocialRail />
+        <CustomCursor />
         {children}
         <Footer />
         <div
