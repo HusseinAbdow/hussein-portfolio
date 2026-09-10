@@ -42,7 +42,7 @@ export default function Portrait({ blend }: PortraitProps) {
           fill
           priority
           sizes="(max-width: 768px) 80vw, (max-width: 1280px) 40vh, 70vh"
-          className="absolute inset-0 object-cover !-top-[5px] !h-[calc(100%+5px)]"
+          className="absolute inset-0 object-cover md:!-top-[5px] md:!h-[calc(100%+5px)]"
           style={{
             objectPosition: "50% 22%",
           }}

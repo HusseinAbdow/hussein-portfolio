@@ -12,14 +12,22 @@ export function useHoverSide(): number {
     // SSR check
     if (typeof window === "undefined") return;
 
-    // Detect touch-only devices with no fine cursor (coarse pointer)
-    const mediaQuery = window.matchMedia("(pointer: coarse)");
-    if (mediaQuery.matches) {
+    const isStatic = () =>
+      window.matchMedia("(pointer: coarse)").matches ||
+      window.innerWidth < 768;
+
+    // Touch-only devices with no fine cursor (coarse pointer) or mobile-width
+    // viewports keep a fixed 50/50 split with no hover blend
+    if (isStatic()) {
       setBlend(50);
       return;
     }
 
     const handleMouseMove = (e: MouseEvent) => {
+      if (isStatic()) {
+        targetRef.current = 50;
+        return;
+      }
       const width = window.innerWidth;
       const xPercent = (e.clientX / width) * 100;
       targetRef.current = Math.min(Math.max(xPercent, 0), 100);

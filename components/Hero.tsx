@@ -3,18 +3,20 @@
 import Link from "next/link";
 import Portrait from "./Portrait";
 import { useHoverSide } from "@/lib/useHoverSide";
+import { useIsMobile } from "@/lib/useIsMobile";
 
 export default function Hero() {
   const blend = useHoverSide();
+  const isMobile = useIsMobile();
 
   const uxT = blend / 100;
   const devT = 1 - blend / 100;
 
-  const uxOpacity = 1 - uxT * 0.6;
-  const devOpacity = 1 - devT * 0.6;
+  const uxOpacity = isMobile ? 1 : 1 - uxT * 0.6;
+  const devOpacity = isMobile ? 1 : 1 - devT * 0.6;
 
-  const uxScale = 1 + devT * 0.05;
-  const devScale = 1 + uxT * 0.05;
+  const uxScale = isMobile ? 1 : 1 + devT * 0.05;
+  const devScale = isMobile ? 1 : 1 + uxT * 0.05;
 
   const mixInkMuted = (t: number) => {
     const ink = [245, 247, 250];
@@ -23,8 +25,13 @@ export default function Hero() {
     return `rgb(${r}, ${g}, ${b})`;
   };
 
-  const uxColor = mixInkMuted(uxT);
-  const devColor = mixInkMuted(devT);
+  const uxColor = isMobile ? "var(--ink)" : mixInkMuted(uxT);
+  const devColor = isMobile ? "var(--ink)" : mixInkMuted(devT);
+
+  const hoverTransition = isMobile
+    ? undefined
+    : "opacity 150ms linear, color 150ms linear";
+  const fadeTransition = isMobile ? undefined : "opacity 150ms linear";
 
   return (
     <section className="relative w-full px-6 py-6 md:py-8">
@@ -52,7 +59,7 @@ export default function Hero() {
               color: uxColor,
               transform: `scale(${uxScale})`,
               transformOrigin: "right center",
-              transition: "opacity 150ms linear, color 150ms linear",
+              transition: hoverTransition,
             }}
           >
             <div>
@@ -62,7 +69,7 @@ export default function Hero() {
           </h2>
           <p
             className="mt-5 max-w-[300px] font-body text-[clamp(14px,1.6vw,17px)] leading-relaxed text-muted max-md:hidden"
-            style={{ opacity: uxOpacity, transition: "opacity 150ms linear" }}
+            style={{ opacity: uxOpacity, transition: fadeTransition }}
           >
             I care about how a product feels — then I build the experience behind it.
           </p>
@@ -80,7 +87,7 @@ export default function Hero() {
             }}
           />
           <div className="relative">
-            <Portrait blend={blend} />
+            <Portrait blend={isMobile ? 50 : blend} />
         </div>
         </div>
 
@@ -97,7 +104,7 @@ export default function Hero() {
                 color: devColor,
                 transform: `scale(${devScale})`,
                 transformOrigin: "left center",
-                transition: "opacity 150ms linear, color 150ms linear",
+                transition: hoverTransition,
               }}
             >
               <div>Mobile</div>
@@ -105,7 +112,7 @@ export default function Hero() {
             </h2>
             <p
               className="mt-5 max-w-[300px] font-body text-[clamp(14px,1.6vw,17px)] leading-relaxed text-muted max-md:hidden"
-              style={{ opacity: devOpacity, transition: "opacity 150ms linear" }}
+              style={{ opacity: devOpacity, transition: fadeTransition }}
             >
               Building mobile products with real architecture, real data, and the user experience in mind.
             </p>
