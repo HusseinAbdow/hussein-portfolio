@@ -1,18 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  useReducedMotion,
-} from "framer-motion";
+import { AnimatePresence, motion, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 
 const INTERACTIVE_SELECTOR =
   'a, button:not(:disabled), [role="button"], input, textarea, select, .cursor-pointer';
 
 const SIZE_NORMAL = 40;
-const SIZE_HOVER = 50;
+const SIZE_HOVER = 56;
+
+const BORDER_NORMAL = "#f5f7fa";
+const BORDER_HOVER = "#38bdf8";
+const FILL_NORMAL = "rgba(56, 189, 248, 0)";
+const FILL_HOVER = "rgba(56, 189, 248, 0.12)";
 
 export default function CustomCursor() {
   const [enabled, setEnabled] = useState(false);
@@ -70,24 +70,37 @@ export default function CustomCursor() {
       style={{ x: reduced ? x : springX, y: reduced ? y : springY }}
     >
       <motion.div
-        className="rounded-full border border-ink"
+        className="flex items-center justify-center rounded-full border"
         initial={{ opacity: 0 }}
         animate={{
           width: size,
           height: size,
           marginLeft: -half,
           marginTop: -half,
-          opacity: visible ? (hovering ? 0.8 : 0.6) : 0,
-          backgroundColor: hovering
-            ? "rgba(245, 247, 250, 0.08)"
-            : "rgba(245, 247, 250, 0)",
+          opacity: visible ? (hovering ? 1 : 0.6) : 0,
+          borderColor: hovering ? BORDER_HOVER : BORDER_NORMAL,
+          backgroundColor: hovering ? FILL_HOVER : FILL_NORMAL,
         }}
         transition={
           reduced
             ? { duration: 0.1 }
             : { type: "spring", stiffness: 300, damping: 24 }
         }
-      />
+      >
+        <AnimatePresence>
+          {hovering && (
+            <motion.span
+              className="font-body text-[9px] font-medium uppercase tracking-[0.14em] text-accentDev"
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.6 }}
+              transition={reduced ? { duration: 0.1 } : { duration: 0.18, ease: "easeOut" }}
+            >
+              Press
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </motion.div>
   );
 }
