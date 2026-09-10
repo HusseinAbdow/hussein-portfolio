@@ -52,8 +52,8 @@ export default function IntroLoader() {
       return;
     }
 
-    // Keep the whole intro (including exit) within ~2s.
-    const displayDuration = shouldReduceMotion ? 500 : 1600;
+    // Keep the whole intro (including exit) within ~4.4s.
+    const displayDuration = shouldReduceMotion ? 3000 : 4000;
 
     let completionTimer: number | undefined;
     const timer = setTimeout(() => {
@@ -153,7 +153,7 @@ export default function IntroLoader() {
                     initial={{ opacity: 0, y: 14 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{
-                      delay: 0.15 + i * 0.045,
+                      delay: 0.2 + i * 0.06,
                       duration: 0.35,
                       ease: "easeOut",
                     }}
@@ -168,7 +168,7 @@ export default function IntroLoader() {
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.1, duration: 0.4, ease: "easeOut" }}
+                transition={{ delay: 2.4, duration: 0.4, ease: "easeOut" }}
                 className="font-display italic text-[clamp(14px,1.8vw,18px)] text-ink/70"
               >
                 &mdash; Hussein
@@ -179,15 +179,15 @@ export default function IntroLoader() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 1.15, duration: 0.2 }}
+                  transition={{ delay: 2.5, duration: 0.2 }}
                   className="relative w-[160px] h-[1px] bg-ink/20 overflow-hidden"
                 >
                   <motion.div
                     initial={{ left: "-100%" }}
                     animate={{ left: "0%" }}
                     transition={{
-                      delay: 1.2,
-                      duration: 0.35,
+                      delay: 2.55,
+                      duration: 1.2,
                       ease: "easeInOut",
                     }}
                     className="absolute inset-0 bg-ink"
