@@ -17,6 +17,7 @@ export interface Project {
   coverType: "image" | "video";
   coverSrc: string;
   gallery: { type: "image" | "video"; src: string; caption?: string }[];
+  collaborative?: boolean;
 }
 
 export const projects: Project[] = [
@@ -41,6 +42,7 @@ export const projects: Project[] = [
     tags: ["Flutter", "PostgreSQL", "Mobile UI"],
     techStack: ["Flutter", "PostgreSQL", "Mobile UI"],
     repoUrl: "https://github.com/HusseinAbdow/timberfy",
+    collaborative: true,
     coverType: "video",
     coverSrc: "/work/timberfy/timberfy-preview.mp4",
     gallery: [
@@ -155,6 +157,7 @@ export const projects: Project[] = [
     tags: ["Node.js", "Express", "Firebase Firestore"],
     techStack: ["Node.js", "Express", "Firebase Firestore"],
     repoUrl: "https://github.com/HusseinAbdow/sticky-wall",
+    collaborative: true,
     coverType: "video",
     coverSrc: "/work/sticky-wall/sticky-note-preview.mp4",
     gallery: [
@@ -257,5 +260,10 @@ export const projects: Project[] = [
       { type: "image", src: "/work/smart-road-safety/history.png", caption: "History" },
       { type: "image", src: "/work/smart-road-safety/analysis.png", caption: "Analysis" },
     ],
+    collaborative: true,
   },
 ];
+
+export const collaborativeProjects = projects.filter(
+  (project) => project.collaborative
+);
