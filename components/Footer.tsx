@@ -1,4 +1,5 @@
 import { socialLinks } from "@/lib/socialLinks";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -18,7 +19,14 @@ export default function Footer() {
           ))}
         </div>
         <p className="font-body text-[12px] text-muted">
-          &copy; {new Date().getFullYear()} Hussein Abdow
+          &copy; {new Date().getFullYear()} Hussein Abdow{" "}
+          <span aria-hidden>&middot;</span>{" "}
+          <Link
+            href="/privacy"
+            className="transition-colors hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-accentUx focus-visible:outline-offset-4 rounded"
+          >
+            Privacy Policy
+          </Link>
         </p>
       </div>
     </footer>
