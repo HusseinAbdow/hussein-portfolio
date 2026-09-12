@@ -6,6 +6,7 @@ import {
 } from "@/lib/supabase/server";
 import { getSessionIdentity } from "@/lib/words/identity";
 import { normalizeSubmission } from "@/lib/words/validation";
+import { getRequestOrigin } from "@/lib/requestOrigin";
 import { projects } from "@/lib/projects";
 import { manualProjectsByIdentifier } from "@/lib/words/manualProjects";
 
@@ -169,7 +170,7 @@ export async function POST(request: Request) {
     // Notification fires on initial creation — edits notify via PATCH below.
     // A failure here is logged and swallowed; the submission still succeeds.
     await sendSubmissionNotification({
-      origin: new URL(request.url).origin,
+      origin: getRequestOrigin(request),
       kind: "created",
       submitterName:
         identity.displayName ??
@@ -279,7 +280,7 @@ export async function PATCH(request: Request) {
     // too — same helper, same failure-proofing (a Resend error is logged and
     // swallowed; the edit still succeeds).
     await sendSubmissionNotification({
-      origin: new URL(request.url).origin,
+      origin: getRequestOrigin(request),
       kind: "updated",
       submitterName:
         identity.displayName ??

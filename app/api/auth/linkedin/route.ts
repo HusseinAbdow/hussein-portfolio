@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { sanitizeNextPath } from "@/lib/words/identity";
+import { getRequestOrigin } from "@/lib/requestOrigin";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
 const AUTH_NEXT_COOKIE = "words_auth_next";
 
 export async function GET(request: Request) {
-  const origin = new URL(request.url).origin;
+  const origin = getRequestOrigin(request);
   const { searchParams } = new URL(request.url);
   const nextPath = sanitizeNextPath(searchParams.get("next"));
 
