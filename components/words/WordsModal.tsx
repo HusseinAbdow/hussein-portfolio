@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { BadgeCheck, CheckCircle2, Loader2, X } from "lucide-react";
 import { SiGithub } from "react-icons/si";
@@ -107,6 +108,15 @@ export default function WordsModal({
   // Guards one-time prefill per authenticated session; cleared on close so
   // the next open picks up refreshed existing-submission data.
   const prefilledRef = useRef(false);
+  // Portal host: the modal renders into <body> so its position:fixed is
+  // always viewport-relative. A transformed / will-change ancestor (e.g.
+  // ScrollReveal) otherwise becomes the containing block and anchors the
+  // dialog to that wrapper's place in the document instead of the screen.
+  const [portalHost, setPortalHost] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setPortalHost(document.body);
+  }, []);
 
   const includesCollaborator = relationships.includes("Collaborator");
 
@@ -162,7 +172,7 @@ export default function WordsModal({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !portalHost) return null;
 
   function toggleRelationship(value: string) {
     setError(null);
@@ -262,7 +272,7 @@ export default function WordsModal({
     onClose();
   }
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[55] flex items-end justify-center bg-bg/80 backdrop-blur-sm sm:items-center sm:p-6"
       onClick={handleClose}
@@ -272,9 +282,9 @@ export default function WordsModal({
         aria-modal="true"
         aria-label="Share a few words"
         onClick={(event) => event.stopPropagation()}
-        className="max-h-[92vh] w-full overflow-y-auto rounded-t-2xl border border-border bg-surface p-6 shadow-[0_-8px_60px_rgba(0,0,0,0.5)] sm:max-w-lg sm:rounded-2xl sm:p-8 md:p-9"
+        className="flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-surface shadow-[0_-8px_60px_rgba(0,0,0,0.5)] sm:max-w-lg sm:rounded-2xl"
       >
-        <div className="mb-6 flex items-start justify-between gap-4">
+        <div className="flex shrink-0 items-start justify-between gap-4 px-6 pt-6 sm:px-8 sm:pt-8">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted/80">
               A Few Words
@@ -294,12 +304,12 @@ export default function WordsModal({
         </div>
 
         {session.status === "loading" || session.status === "idle" ? (
-          <div className="flex items-center justify-center gap-2 py-16 text-muted">
+          <div className="flex items-center justify-center gap-2 px-6 py-16 text-muted sm:px-8">
             <Loader2 size={18} className="animate-spin" aria-hidden />
             <span className="font-body text-[13px]">Checking your session&hellip;</span>
           </div>
         ) : session.status === "error" ? (
-          <div className="py-10 text-center">
+          <div className="px-6 py-10 text-center sm:px-8">
             <p className="font-body text-[14px] text-muted">
               Couldn&rsquo;t verify your session.
             </p>
@@ -312,7 +322,7 @@ export default function WordsModal({
             </button>
           </div>
         ) : session.status === "anonymous" ? (
-          <div>
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8 sm:px-8">
             {signInError && (
               <p
                 role="alert"
@@ -343,7 +353,7 @@ export default function WordsModal({
             </div>
           </div>
         ) : done ? (
-          <div className="py-8 text-center">
+          <div className="px-6 py-8 text-center sm:px-8">
             <CheckCircle2 size={40} strokeWidth={1.4} className="mx-auto text-emerald-400" aria-hidden />
             <p className="mt-5 font-display text-[18px] font-semibold text-ink">
               {doneMode === "updated"
@@ -364,172 +374,182 @@ export default function WordsModal({
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-7">
-            {error && (
-              <p
-                role="alert"
-                className="rounded-xl border border-red-400/30 bg-red-400/5 px-4 py-3 font-body text-[13px] text-red-300"
-              >
-                {error}
-              </p>
-            )}
+          // Authenticated form: scrollable field area with the submit button
+          // pinned below it, so the button is always visible and reachable
+          // without scrolling — even on short viewports.
+          <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+            <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-2 sm:px-8">
+              {error && (
+                <p
+                  role="alert"
+                  className="mb-1 rounded-xl border border-red-400/30 bg-red-400/5 px-4 py-3 font-body text-[13px] text-red-300"
+                >
+                  {error}
+                </p>
+              )}
 
-            <fieldset>
-              <legend className="flex items-baseline justify-between gap-3 w-full">
-                <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted/80">
-                  01 &middot; Relationship
-                </span>
-                <span className="font-mono text-[10px] text-muted/60">
-                  {relationships.length}/{MAX_RELATIONSHIPS}
-                </span>
-              </legend>
-              <p className="mt-2 font-body text-[14px] text-ink">
-                How do you know Hussein?
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {RELATIONSHIP_VALUES.map((value) => {
-                  const selected = relationships.includes(value);
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      aria-pressed={selected}
-                      onClick={() => toggleRelationship(value)}
-                      className={`${chipBaseClasses} ${
-                        selected ? chipOnClasses : chipOffClasses
-                      }`}
-                    >
-                      {value}
-                    </button>
-                  );
-                })}
-              </div>
-            </fieldset>
-
-            {includesCollaborator && (
-              <fieldset>
+              <fieldset className="mt-5">
                 <legend className="flex items-baseline justify-between gap-3 w-full">
                   <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted/80">
-                    02 &middot; Projects
+                    01 &middot; Relationship
                   </span>
                   <span className="font-mono text-[10px] text-muted/60">
-                    {projectSlugs.length}/{MAX_PROJECTS}
+                    {relationships.length}/{MAX_RELATIONSHIPS}
                   </span>
                 </legend>
                 <p className="mt-2 font-body text-[14px] text-ink">
-                  Worked together on a project?
+                  How do you know Hussein?
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {selectableProjects.map((project) => {
-                    const selected = projectSlugs.includes(project.identifier);
+                  {RELATIONSHIP_VALUES.map((value) => {
+                    const selected = relationships.includes(value);
                     return (
                       <button
-                        key={project.identifier}
+                        key={value}
                         type="button"
                         aria-pressed={selected}
-                        onClick={() => toggleProject(project.identifier)}
+                        onClick={() => toggleRelationship(value)}
                         className={`${chipBaseClasses} ${
-                          selected ? projectChipOnClasses : projectChipOffClasses
+                          selected ? chipOnClasses : chipOffClasses
                         }`}
                       >
-                        {project.title}
+                        {value}
                       </button>
                     );
                   })}
                 </div>
-                <p className="mt-3 font-body text-[12px] text-muted/80">
-                  Optional — link up to {MAX_PROJECTS} projects, or none at
-                  all.
-                </p>
               </fieldset>
-            )}
 
-            <fieldset>
-              <legend className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted/80">
-                {includesCollaborator ? "03" : "02"} &middot; Message
-              </legend>
-              <label
-                htmlFor="words-message"
-                className="mt-2 block font-body text-[14px] text-ink"
-              >
-                Your words
-              </label>
-              <textarea
-                id="words-message"
-                value={message}
-                onChange={(event) => {
-                  setMessage(event.target.value);
-                  setError(null);
-                }}
-                rows={5}
-                maxLength={MESSAGE_MAX_LENGTH}
-                placeholder="A sentence or two — how we met, what it was like&hellip;"
-                className="mt-3 w-full resize-none rounded-xl border border-border bg-bg/60 px-4 py-3 font-body text-[14px] leading-relaxed text-ink placeholder:text-muted/50 focus:border-accentUx/60 focus:outline-none"
-              />
-              <p
-                className={`mt-2 text-right font-mono text-[10px] tracking-[0.08em] ${
-                  message.length > 0 && sanitizedMessage.length < MESSAGE_MIN_LENGTH
-                    ? "text-amber-300/80"
-                    : "text-muted/70"
-                }`}
-              >
-                {message.length}/{MESSAGE_MAX_LENGTH}
-              </p>
-            </fieldset>
+              {includesCollaborator && (
+                <fieldset className="mt-7">
+                  <legend className="flex items-baseline justify-between gap-3 w-full">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted/80">
+                      02 &middot; Projects
+                    </span>
+                    <span className="font-mono text-[10px] text-muted/60">
+                      {projectSlugs.length}/{MAX_PROJECTS}
+                    </span>
+                  </legend>
+                  <p className="mt-2 font-body text-[14px] text-ink">
+                    Worked together on a project?
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {selectableProjects.map((project) => {
+                      const selected = projectSlugs.includes(project.identifier);
+                      return (
+                        <button
+                          key={project.identifier}
+                          type="button"
+                          aria-pressed={selected}
+                          onClick={() => toggleProject(project.identifier)}
+                          className={`${chipBaseClasses} ${
+                            selected ? projectChipOnClasses : projectChipOffClasses
+                          }`}
+                        >
+                          {project.title}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="mt-3 font-body text-[12px] text-muted/80">
+                    Optional — link up to {MAX_PROJECTS} projects, or none at
+                    all.
+                  </p>
+                </fieldset>
+              )}
 
-            {session.identity.provider === "linkedin_oidc" && (
-              <fieldset>
+              <fieldset className="mt-7">
+                <legend className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted/80">
+                  {includesCollaborator ? "03" : "02"} &middot; Message
+                </legend>
                 <label
-                  htmlFor="words-linkedin-url"
-                  className="block font-body text-[14px] text-ink"
+                  htmlFor="words-message"
+                  className="mt-2 block font-body text-[14px] text-ink"
                 >
-                  Your LinkedIn profile URL (optional)
+                  Your words
                 </label>
-                <input
-                  id="words-linkedin-url"
-                  type="url"
-                  value={linkedinUrl}
+                <textarea
+                  id="words-message"
+                  value={message}
                   onChange={(event) => {
-                    setLinkedinUrl(event.target.value);
+                    setMessage(event.target.value);
                     setError(null);
                   }}
-                  maxLength={300}
-                  placeholder="https://linkedin.com/in/yourname"
-                  className="mt-3 w-full rounded-xl border border-border bg-bg/60 px-4 py-3 font-body text-[14px] leading-relaxed text-ink placeholder:text-muted/50 focus:border-accentUx/60 focus:outline-none"
+                  rows={5}
+                  maxLength={MESSAGE_MAX_LENGTH}
+                  placeholder="A sentence or two — how we met, what it was like&hellip;"
+                  className="mt-3 w-full resize-none rounded-xl border border-border bg-bg/60 px-4 py-3 font-body text-[14px] leading-relaxed text-ink placeholder:text-muted/50 focus:border-accentUx/60 focus:outline-none"
                 />
-                <p className="mt-2 font-body text-[12px] text-muted/80">
-                  Optional — links your name on the wall to your LinkedIn
-                  profile if you provide it.
+                <p
+                  className={`mt-2 text-right font-mono text-[10px] tracking-[0.08em] ${
+                    message.length > 0 && sanitizedMessage.length < MESSAGE_MIN_LENGTH
+                      ? "text-amber-300/80"
+                      : "text-muted/70"
+                  }`}
+                >
+                  {message.length}/{MESSAGE_MAX_LENGTH}
                 </p>
               </fieldset>
-            )}
 
-            <IdentityBadge identity={session.identity} />
-
-            <button
-              type="submit"
-              disabled={Boolean(blockedReason) || submitting}
-              className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-accentUx/60 bg-accentUx/10 px-5 py-3.5 font-body text-[13px] font-medium uppercase tracking-[0.1em] text-ink transition-colors hover:bg-accentUx hover:text-bg focus-visible:outline focus-visible:outline-2 focus-visible:outline-accentUx focus-visible:outline-offset-4 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-accentUx/10 disabled:hover:text-ink"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" aria-hidden />
-                  {editing ? "Saving&hellip;" : "Submitting&hellip;"}
-                </>
-              ) : editing ? (
-                "Save changes"
-              ) : (
-                "Submit your words"
+              {session.identity.provider === "linkedin_oidc" && (
+                <fieldset className="mt-7">
+                  <label
+                    htmlFor="words-linkedin-url"
+                    className="block font-body text-[14px] text-ink"
+                  >
+                    Your LinkedIn profile URL (optional)
+                  </label>
+                  <input
+                    id="words-linkedin-url"
+                    type="url"
+                    value={linkedinUrl}
+                    onChange={(event) => {
+                      setLinkedinUrl(event.target.value);
+                      setError(null);
+                    }}
+                    maxLength={300}
+                    placeholder="https://linkedin.com/in/yourname"
+                    className="mt-3 w-full rounded-xl border border-border bg-bg/60 px-4 py-3 font-body text-[14px] leading-relaxed text-ink placeholder:text-muted/50 focus:border-accentUx/60 focus:outline-none"
+                  />
+                  <p className="mt-2 font-body text-[12px] text-muted/80">
+                    Optional — links your name on the wall to your LinkedIn
+                    profile if you provide it.
+                  </p>
+                </fieldset>
               )}
-            </button>
-            {blockedReason && !submitting && (
-              <p className="-mt-4 text-center font-body text-[12px] text-muted/80">
-                {blockedReason}
-              </p>
-            )}
+
+              <div className="mt-7">
+                <IdentityBadge identity={session.identity} />
+              </div>
+            </div>
+
+            <div className="shrink-0 px-6 pb-6 pt-4 sm:px-8 sm:pb-8">
+              <button
+                type="submit"
+                disabled={Boolean(blockedReason) || submitting}
+                className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-accentUx/60 bg-accentUx/10 px-5 py-3.5 font-body text-[13px] font-medium uppercase tracking-[0.1em] text-ink transition-colors hover:bg-accentUx hover:text-bg focus-visible:outline focus-visible:outline-2 focus-visible:outline-accentUx focus-visible:outline-offset-4 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-accentUx/10 disabled:hover:text-ink"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" aria-hidden />
+                    {editing ? "Saving&hellip;" : "Submitting&hellip;"}
+                  </>
+                ) : editing ? (
+                  "Save changes"
+                ) : (
+                  "Submit your words"
+                )}
+              </button>
+              {blockedReason && !submitting && (
+                <p className="mt-2 text-center font-body text-[12px] text-muted/80">
+                  {blockedReason}
+                </p>
+              )}
+            </div>
           </form>
         )}
       </div>
-    </div>
+    </div>,
+    portalHost
   );
 }
