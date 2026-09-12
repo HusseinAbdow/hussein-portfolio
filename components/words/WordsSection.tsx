@@ -38,7 +38,7 @@ export default async function WordsSection() {
         <header className="mb-10 md:mb-14">
           <ScrollReveal delay={80} distance={12} duration={400}>
             <p className="mb-3 font-body text-[12px] tracking-[0.12em] uppercase text-muted">
-              Collaborators &amp; Friends
+              People I&rsquo;ve Worked With
             </p>
           </ScrollReveal>
           <ScrollReveal delay={160} distance={12} duration={400}>
