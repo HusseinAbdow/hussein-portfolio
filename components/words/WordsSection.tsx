@@ -85,6 +85,13 @@ export default async function WordsSection() {
                 yours could be the first ones here.
               </p>
             </div>
+            {/* The CTA must never disappear with the last card: an empty wall
+                is exactly when a visitor should be invited to contribute. */}
+            <div className="mt-12 border-t border-border pt-12 md:mt-16 md:pt-16">
+              <WordsSessionProvider>
+                <WordsCta selectableProjects={selectableProjects} />
+              </WordsSessionProvider>
+            </div>
           </ScrollReveal>
         )}
       </div>
