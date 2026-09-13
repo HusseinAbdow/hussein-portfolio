@@ -76,12 +76,14 @@ export default function Contact() {
                     Thanks — I&apos;ll get back to you soon.
                   </p>
                   <p className="mt-2 font-body text-sm text-muted">
-                    Your message is in my inbox. Urgent? Email me directly at{" "}
+                    Your message is in my inbox. Urgent? DM me on Instagram{" "}
                     <a
-                      href="mailto:hussabdow@gmail.com"
+                      href="https://instagram.com/huss_codes"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-accentUx hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-accentUx focus-visible:outline-offset-2 rounded"
                     >
-                      hussabdow@gmail.com
+                      @huss_codes
                     </a>
                     .
                   </p>
