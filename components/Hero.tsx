@@ -71,7 +71,7 @@ export default function Hero() {
             className="mt-5 max-w-[300px] font-body text-[clamp(14px,1.6vw,17px)] leading-relaxed text-muted max-md:hidden"
             style={{ opacity: uxOpacity, transition: fadeTransition }}
           >
-            I care about how a product feels — then I build the experience behind it.
+            I work across design and development, turning product ideas into clear, usable, working experiences
           </p>
         </Link>
 
@@ -114,7 +114,7 @@ export default function Hero() {
               className="mt-5 max-w-[300px] font-body text-[clamp(14px,1.6vw,17px)] leading-relaxed text-muted max-md:hidden"
               style={{ opacity: devOpacity, transition: fadeTransition }}
             >
-              Building mobile products with real architecture, real data, and the user experience in mind.
+              I build mobile experiences that are intuitive to use, thoughtfully structured, and made to work beyond the screen.
             </p>
           </Link>
           <Link
