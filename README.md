@@ -20,6 +20,8 @@ A personal portfolio showcasing web/UI-UX development and mobile app development
 | *Categorized work pages* | *Project detail page with gallery* |
 | ![Toolkit](images/readme-images/toolkit.png) | ![Contact](images/readme-images/contact.png) |
 | *Toolkit / tech stack section* | *Contact page with working email form* |
+| ![In their words](images/readme-images/words.png) | |
+| *"In their words" — verified testimonial wall* | |
 
 ## Overview
 
