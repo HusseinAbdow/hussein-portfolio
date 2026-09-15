@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SocialRail from "@/components/SocialRail";
@@ -45,6 +46,7 @@ export default function RootLayout({
         <CustomCursor />
         {children}
         <Footer />
+        <Analytics />
         <div
           aria-hidden
           className="grain-overlay pointer-events-none fixed inset-0 z-[60]"
