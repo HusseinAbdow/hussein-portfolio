@@ -232,15 +232,15 @@ export const projects: Project[] = [
   },
   {
     slug: "smart-road-safety",
-    title: "Smart Road Safety — 5G & AI Competition",
+    title: "Smart Road Safety — Teknofest 5G & AI Competition",
     category: "ui-ux",
     year: 2026,
     summary:
-      "A UI/UX concept for an AI-powered road surveillance app, designed for a university 5G and AI competition.",
+      "A road surveillance app designed for the Teknofest 5G and AI competition.",
     description:
-      "This is a lo-fi UI/UX concept designed for a university competition combining 5G networks, Network APIs, and AI for real-world applications. The brief asked teams to use network resources dynamically and deliver value through AI-based real-time analysis — this concept applies that to road safety, with a camera-based monitoring interface, incident history, and analysis views.",
+      "This is a lo-fi UI/UX concept designed for Teknofest, a competition combining 5G networks, Network APIs, and AI for real-world applications. The brief asked teams to use network resources dynamically and deliver value through AI-based real-time analysis — this concept applies that to road safety, with a camera-based monitoring interface, incident history, and analysis views.",
     tagline:
-      "A UI/UX concept for an AI-powered road surveillance app, built for a university 5G and AI competition.",
+      "A road surveillance app, built for the Teknofest 5G and AI competition.",
     builtItems: [
       "Designed the core monitoring flow: live camera view, detection results, and alerts",
       "Mapped history and analysis views for reviewing past incidents",
@@ -248,7 +248,7 @@ export const projects: Project[] = [
     ],
     challenge:
       "The main design challenge was presenting dense AI detection data — vehicle, driver, phone-use, smoking detection — without overwhelming the primary live-monitoring view.",
-    tags: ["Figma", "UI Design", "AI Concept"],
+    tags: ["Figma", "UI Design", "Teknofest"],
     figmaUrl:
       "https://www.figma.com/design/RMjJZqt0EzlF5udkxiQlNA/Road-survalience-with-AI?node-id=0-1&p=f",
     coverType: "image",
