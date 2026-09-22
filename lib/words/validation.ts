@@ -4,7 +4,6 @@ import { manualProjectsByIdentifier } from "@/lib/words/manualProjects";
 
 export const RELATIONSHIP_VALUES = [
   "Collaborator",
-  "Friend",
   "Classmate",
   "Coworker",
   "Client",

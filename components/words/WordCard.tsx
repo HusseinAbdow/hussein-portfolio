@@ -115,7 +115,11 @@ export default function WordCard({
     submission.provider === "linkedin_oidc" && submission.profileUrl
       ? submission.profileUrl
       : null;
-  const linkedinHandle = linkedinVanitySlug(submission.profileUrl);
+  // Display handle is deliberately decoupled from the profile link: prefer
+  // the curated clean handle stored at submission time, and only fall back
+  // to the profile_url vanity slug when none exists. The URL itself is used
+  // solely as the link target.
+  const linkedinHandle = submission.handle ?? linkedinVanitySlug(submission.profileUrl);
   const isGithub = submission.provider === "github";
 
   const nameClasses =

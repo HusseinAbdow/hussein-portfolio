@@ -15,7 +15,7 @@ async function getApprovedSubmissions(): Promise<PublicWordSubmission[]> {
     const { data } = await supabase
       .from("words_submissions")
       .select(
-        "id, provider, provider_id, github_user_id, github_username, display_name, avatar_url, profile_url, message, relationships, project_slug, project_slugs, status, created_at, updated_at"
+        "id, provider, provider_id, github_user_id, github_username, display_handle, display_name, avatar_url, profile_url, message, relationships, project_slug, project_slugs, status, created_at, updated_at"
       )
       .eq("status", "approved")
       .order("created_at", { ascending: false })

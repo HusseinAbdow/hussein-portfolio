@@ -47,6 +47,7 @@ interface WordsSubmissionRow {
   provider_id: string | null;
   github_user_id: string | number | null;
   github_username: string | null;
+  display_handle: string | null;
   display_name: string | null;
   avatar_url: string | null;
   profile_url: string | null;
@@ -80,7 +81,9 @@ function baseWordFields(row: WordsSubmissionRow) {
     id: row.id,
     provider: normalizeProvider(row.provider),
     providerId: identityKey(row),
-    handle: row.github_username,
+    // GitHub handle is the username; LinkedIn rows use the curated
+    // display_handle when set (never an identity value, display only).
+    handle: row.github_username ?? row.display_handle,
     displayName: row.display_name,
     avatarUrl: row.avatar_url,
     profileUrl: row.profile_url,
