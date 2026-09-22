@@ -11,5 +11,5 @@ alter table public.words_submissions
   check (
     relationships <@ array['Collaborator', 'Classmate', 'Coworker', 'Client', 'Advisor', 'Other']::text[]
     and cardinality(relationships) between 1 and 2
-    and cardinality(array(select distinct unnest(relationships))) = cardinality(relationships)
+    and (cardinality(relationships) = 1 or relationships[1] <> relationships[2])
   );
