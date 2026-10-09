@@ -2,13 +2,11 @@ import { collaborativeProjects } from "@/lib/projects";
 
 export interface ManualProject {
   name: string;
-  // Same "gh:<repo-name>" identifier format used by the card badge/link logic.
   identifier: string;
   url: string;
 }
 
-// Manually curated external repos for the "A Few Words" project picker.
-// Intentionally static — no GitHub API fetching, no token, no caching.
+// Static external repos for the project picker (no API fetch).
 export const manualProjects: ManualProject[] = [
   {
     name: "Akıllı Rota Bulucu",
@@ -32,15 +30,13 @@ export const manualProjectsByIdentifier = new Map(
 );
 
 export interface SelectableProject {
-  // Case-study slugs ("timberfy") or "gh:<repo-name>" identifiers.
   identifier: string;
   title: string;
   url: string | null;
   isCaseStudy: boolean;
 }
 
-// Combined picker list: collaborative case-study projects first, then the
-// manual external repos. Six items total.
+// Case studies first, then manual repos.
 export function getSelectableProjects(): SelectableProject[] {
   const caseStudies: SelectableProject[] = collaborativeProjects.map(
     (project) => ({

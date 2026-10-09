@@ -19,8 +19,7 @@ export default function WordsCta({
     setSignInError(false);
   }, []);
 
-  // Handles the return trip from GitHub OAuth: `/?words=open` reopens the
-  // submission flow, `auth_error` surfaces a friendly sign-in failure message.
+  // Reopen after OAuth return; show sign-in errors.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const autoOpen = params.get("words") === "open";
@@ -42,8 +41,7 @@ export default function WordsCta({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Card kebab menus request the edit flow by bumping editRequestCount —
-  // this opens the SAME modal/handler as the "Edit your entry" CTA below.
+  // Card menus open the same modal via editRequestCount.
   useEffect(() => {
     if (editRequestCount > 0) {
       openModal();

@@ -1,7 +1,7 @@
 -- Optional clean display handle for LinkedIn rows. LinkedIn OIDC does not
 -- return a public username, and the self-reported profile_url slug can be
--- noisy (e.g. "fatima-gulamova-691bbb37a"). This column stores a curated,
--- human-friendly handle shown in the UI ("@fatimagulamova") while the
+-- noisy (e.g. "first-last-x1y2z3"). This column stores a curated,
+-- human-friendly handle shown in the UI ("@firstlast") while the
 -- profile link keeps using the exact profile_url the user submitted.
 --
 -- NULL (the default) falls back to the legacy behavior: derive the handle

@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Verified-domain sender for the new-submission notification email.
+// Sender for submission notifications.
 const NOTIFICATION_FROM = "Hussein Abdow <notifications@husseinabdow.me>";
 const NOTIFICATION_TO = "hussabdow@gmail.com";
 
@@ -26,8 +26,7 @@ function projectLabelFor(slug: string): string {
   );
 }
 
-// Maps check-constraint violations to specific, user-friendly messages
-// instead of one generic catch-all. Raw DB details are never exposed.
+// Map constraint errors to client messages.
 function checkConstraintMessage(message: string): string | null {
   if (message.includes("words_submissions_relationships_check")) {
     return "Please select between one and two valid relationships.";
@@ -41,9 +40,7 @@ function checkConstraintMessage(message: string): string | null {
   return null;
 }
 
-// Best-effort notification for submissions that (re)enter review — both new
-// creations and edits. A Resend failure is logged server-side but never
-// breaks the submission/update response.
+// Email the admin on create/update. Failures are logged only.
 async function sendSubmissionNotification(options: {
   origin: string;
   kind: "created" | "updated";
@@ -124,25 +121,19 @@ export async function POST(request: Request) {
       .insert({
         provider: identity.provider,
         provider_id: identity.providerId,
-        // GitHub-specific columns stay populated for GitHub rows and null
-        // for LinkedIn rows (which have no username or numeric user ID).
+        // GitHub columns: set for GitHub, null for LinkedIn.
         github_user_id: identity.provider === "github" ? identity.providerId : null,
         github_username: identity.provider === "github" ? identity.handle : null,
         display_name: identity.displayName,
         avatar_url: identity.avatarUrl,
-        // GitHub keeps its server-derived profile URL. For LinkedIn,
-        // profile_url is the validated self-reported link only — it never
-        // feeds back into any identity-derived field.
+        // GitHub URL is server-derived; LinkedIn URL is user-supplied.
         profile_url:
           identity.provider === "github"
             ? identity.profileUrl
             : parsed.data.linkedinProfileUrl ?? null,
         message: parsed.data.message,
         relationships: parsed.data.relationships,
-        // Multi-project array (new column). The schema expects NULL (not an
-        // empty array) when no projects are selected — mirror of the
-        // project_slugs_valid check contract. The legacy project_slug
-        // column is intentionally left null on new rows — no dual-write.
+        // NULL when no projects selected.
         project_slugs:
           parsed.data.projectSlugs.length > 0 ? parsed.data.projectSlugs : null,
       });
@@ -167,8 +158,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Notification fires on initial creation — edits notify via PATCH below.
-    // A failure here is logged and swallowed; the submission still succeeds.
+    // Notify on creation; edits notify in PATCH.
     await sendSubmissionNotification({
       origin: getRequestOrigin(request),
       kind: "created",
@@ -198,11 +188,7 @@ export async function POST(request: Request) {
   }
 }
 
-// Edit an existing submission. Identity is always derived server-side from
-// the Supabase session; the caller may only ever touch their own row
-// (matched by provider + provider_id — enforced here, not via RLS). The
-// write itself goes through the service-role client after validation, and
-// any edit flips the status back to pending for re-review.
+// Edit own submission. Edits reset status to pending.
 export async function PATCH(request: Request) {
   try {
     const supabase = createSupabaseServerClient();
@@ -225,7 +211,7 @@ export async function PATCH(request: Request) {
     const { identity } = session;
     const admin = createSupabaseAdminClient();
 
-    // Only the caller's own active row is a valid edit target.
+    // Edit target is the caller's own active row.
     const { data: existing } = await admin
       .from("words_submissions")
       .select("id")
@@ -246,13 +232,11 @@ export async function PATCH(request: Request) {
     const updates: Record<string, unknown> = {
       message: parsed.data.message,
       relationships: parsed.data.relationships,
-      // Same null-not-empty-array contract as the insert path.
       project_slugs:
         parsed.data.projectSlugs.length > 0 ? parsed.data.projectSlugs : null,
       status: "pending",
     };
-    // LinkedIn profile_url is the self-reported optional link; allow updating
-    // or clearing it. GitHub rows keep their server-derived URL untouched.
+    // LinkedIn link is editable; GitHub URL stays server-derived.
     if (identity.provider === "linkedin_oidc") {
       updates.profile_url = parsed.data.linkedinProfileUrl ?? null;
     }
@@ -276,9 +260,7 @@ export async function PATCH(request: Request) {
       );
     }
 
-    // Edits also reset the entry to pending, so they notify for re-review
-    // too — same helper, same failure-proofing (a Resend error is logged and
-    // swallowed; the edit still succeeds).
+    // Notify on edit as well.
     await sendSubmissionNotification({
       origin: getRequestOrigin(request),
       kind: "updated",
@@ -291,7 +273,7 @@ export async function PATCH(request: Request) {
       message: parsed.data.message,
     });
 
-    // updated_at is refreshed by the words_submissions_updated_at trigger.
+    // updated_at is set by trigger.
     return NextResponse.json({ success: true, status: "pending" });
   } catch (err) {
     if (err instanceof Error && err.message.startsWith("Missing environment variable")) {

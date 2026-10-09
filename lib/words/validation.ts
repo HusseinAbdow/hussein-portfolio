@@ -19,10 +19,7 @@ export const LINKEDIN_URL_MAX_LENGTH = 300;
 
 const collaborativeSlugs = new Set(collaborativeProjects.map((p) => p.slug));
 
-// Self-reported LinkedIn profile link. This is NOT an identity claim — it
-// never influences provider_id, name, or avatar, which stay server-derived
-// from the Supabase session. Returns a normalized profile URL, or null if
-// the input is not a plausible linkedin.com/in/... URL.
+// Self-reported LinkedIn link. Not identity; validated format only.
 function normalizeLinkedinProfileUrl(raw: string): string | null {
   if (raw.length > LINKEDIN_URL_MAX_LENGTH) return null;
 
@@ -97,9 +94,7 @@ export const wordsSubmissionSchema = z
       }
 
       for (const slug of data.projectSlugs) {
-        // Valid identifiers: collaborative case-study slugs (lib/projects.ts)
-        // or "gh:<name>" identifiers from the static manual list
-        // (lib/words/manualProjects.ts) — a plain static set, no fetch.
+        // Case-study slug or "gh:<name>" from the manual list.
         if (slug.startsWith("gh:")) {
           if (!manualProjectsByIdentifier.has(slug)) {
             ctx.addIssue({
@@ -120,6 +115,79 @@ export const wordsSubmissionSchema = z
   });
 
 export type WordsSubmissionInput = z.infer<typeof wordsSubmissionSchema>;
+
+export const ADMIN_DISPLAY_NAME_MAX_LENGTH = 80;
+export const ADMIN_HANDLE_MIN_LENGTH = 2;
+export const ADMIN_HANDLE_MAX_LENGTH = 40;
+
+function sanitizeAdminDisplayNameValue(raw: string): string {
+  return raw
+    .replace(/[<>]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Admin display name: empty clears to null.
+export function parseAdminDisplayName(raw: unknown): { present: false } | { present: true; value: string | null; error?: string } {
+  if (raw === undefined) return { present: false };
+  if (raw === null) return { present: true, value: null };
+  if (typeof raw !== "string") return { present: true, value: null, error: "Invalid display name." };
+  const cleaned = sanitizeAdminDisplayNameValue(raw);
+  if (cleaned.length === 0) return { present: true, value: null };
+  if (cleaned.length > ADMIN_DISPLAY_NAME_MAX_LENGTH) {
+    return { present: true, value: null, error: "Display name is too long (max 80 characters)." };
+  }
+  return { present: true, value: cleaned };
+}
+
+// Admin handle: empty clears to null.
+export function parseAdminDisplayHandle(raw: unknown): { present: false } | { present: true; value: string | null; error?: string } {
+  if (raw === undefined) return { present: false };
+  if (raw === null) return { present: true, value: null };
+  if (typeof raw !== "string") return { present: true, value: null, error: "Invalid handle." };
+  const cleaned = raw.trim().replace(/^@+/, "");
+  if (cleaned.length === 0) return { present: true, value: null };
+  if (
+    cleaned.length < ADMIN_HANDLE_MIN_LENGTH ||
+    cleaned.length > ADMIN_HANDLE_MAX_LENGTH ||
+    !/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(cleaned) ||
+    /[_-]$/.test(cleaned)
+  ) {
+    return { present: true, value: null, error: "Handle must be 2-40 characters (letters, numbers, _ or -, no trailing _/-)." };
+  }
+  return { present: true, value: cleaned };
+}
+
+function normalizeGithubProfileUrl(raw: string): string | null {
+  let parsed: URL;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    return null;
+  }
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return null;
+  if (parsed.hostname !== "github.com" && parsed.hostname !== "www.github.com") return null;
+  const match = parsed.pathname.match(/^\/([A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?)\/?$/);
+  if (!match) return null;
+  return `https://github.com/${match[1]}`;
+}
+
+// Admin profile link: empty clears to null.
+export function parseAdminProfileUrl(raw: unknown): { present: false } | { present: true; value: string | null; error?: string } {
+  if (raw === undefined) return { present: false };
+  if (raw === null) return { present: true, value: null };
+  if (typeof raw !== "string") return { present: true, value: null, error: "Invalid profile link." };
+  const trimmed = raw.trim();
+  if (trimmed.length === 0) return { present: true, value: null };
+  if (trimmed.length > LINKEDIN_URL_MAX_LENGTH) {
+    return { present: true, value: null, error: "Profile link is too long." };
+  }
+  const linkedin = normalizeLinkedinProfileUrl(trimmed);
+  if (linkedin) return { present: true, value: linkedin };
+  const github = normalizeGithubProfileUrl(trimmed);
+  if (github) return { present: true, value: github };
+  return { present: true, value: null, error: "Use a linkedin.com/in/... or github.com/... link." };
+}
 
 export function sanitizeMessage(raw: string): string {
   return raw

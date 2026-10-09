@@ -6,6 +6,7 @@ import {
 import { getSessionIdentity } from "@/lib/words/identity";
 import { isAdminIdentity } from "@/lib/words/admin";
 import { toAdminWord } from "@/lib/words/types";
+import { parseAdminDisplayHandle, parseAdminDisplayName, parseAdminProfileUrl } from "@/lib/words/validation";
 import type { WordsStatus } from "@/lib/words/types";
 
 export const dynamic = "force-dynamic";
@@ -85,6 +86,92 @@ export async function PATCH(request: Request) {
       );
     }
 
+    if (action === "edit" || action === "update" || action === "details") {
+      const displayNameRaw = body?.displayName ?? body?.display_name;
+      const displayHandleRaw = body?.displayHandle ?? body?.display_handle;
+      const profileUrlRaw = body?.profileUrl ?? body?.profile_url;
+
+      const parsedName = parseAdminDisplayName(displayNameRaw);
+      const parsedHandle = parseAdminDisplayHandle(displayHandleRaw);
+      const parsedUrl = parseAdminProfileUrl(profileUrlRaw);
+
+      if (!parsedName.present && !parsedHandle.present && !parsedUrl.present) {
+        return NextResponse.json(
+          { error: "Nothing to update." },
+          { status: 400 }
+        );
+      }
+      if (parsedName.present && parsedName.error) {
+        return NextResponse.json({ error: parsedName.error }, { status: 400 });
+      }
+      if (parsedHandle.present && parsedHandle.error) {
+        return NextResponse.json({ error: parsedHandle.error }, { status: 400 });
+      }
+      if (parsedUrl.present && parsedUrl.error) {
+        return NextResponse.json({ error: parsedUrl.error }, { status: 400 });
+      }
+
+      const admin = createSupabaseAdminClient();
+      const { data: existing, error: fetchError } = await admin
+        .from("words_submissions")
+        .select("id, provider")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (fetchError) {
+        console.error("Admin words fetch error:", fetchError);
+        return NextResponse.json(
+          { error: "Failed to update the submission." },
+          { status: 500 }
+        );
+      }
+      if (!existing) {
+        return NextResponse.json(
+          { error: "Submission not found." },
+          { status: 404 }
+        );
+      }
+
+      if (
+        parsedHandle.present &&
+        parsedHandle.value !== null &&
+        existing.provider === "github"
+      ) {
+        return NextResponse.json(
+          { error: "Handle editing applies to LinkedIn entries only." },
+          { status: 400 }
+        );
+      }
+
+      const updates: Record<string, string | null> = {};
+      if (parsedName.present) updates.display_name = parsedName.value;
+      if (parsedHandle.present) updates.display_handle = parsedHandle.value;
+      if (parsedUrl.present) updates.profile_url = parsedUrl.value;
+
+      const { data, error } = await admin
+        .from("words_submissions")
+        .update(updates)
+        .eq("id", id)
+        .select("*")
+        .maybeSingle();
+
+      if (error) {
+        console.error("Admin words details update error:", error);
+        return NextResponse.json(
+          { error: "Failed to update the submission." },
+          { status: 500 }
+        );
+      }
+      if (!data) {
+        return NextResponse.json(
+          { error: "Submission not found." },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({ submission: toAdminWord(data) });
+    }
+
     if (action !== "approve" && action !== "reject") {
       return NextResponse.json(
         { error: "Unknown moderation action." },
@@ -95,8 +182,7 @@ export async function PATCH(request: Request) {
     const status: WordsStatus = action === "approve" ? "approved" : "rejected";
     const admin = createSupabaseAdminClient();
 
-    // Restricted to pending rows so already-reviewed submissions can't be
-    // flipped again by a replayed request.
+    // Only pending rows can change status.
     const { data, error } = await admin
       .from("words_submissions")
       .update({ status })

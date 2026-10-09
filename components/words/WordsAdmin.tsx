@@ -72,6 +72,7 @@ function WordIdentity({ submission }: { submission: AdminWordSubmission }) {
   const name =
     submission.displayName ||
     (submission.handle ? `@${submission.handle}` : providerLabels[submission.provider]);
+  const handleLabel = submission.handle ? `@${submission.handle}` : null;
   return (
     <div className="flex items-center gap-3.5">
       <Avatar submission={submission} size={44} />
@@ -80,7 +81,7 @@ function WordIdentity({ submission }: { submission: AdminWordSubmission }) {
           {name}
         </p>
         <p className="mt-1 flex items-center gap-2 font-mono text-[11px] leading-none text-muted">
-          {submission.provider === "github" && submission.handle && (
+          {handleLabel && (
             <>
               {submission.profileUrl ? (
                 <Link
@@ -89,10 +90,10 @@ function WordIdentity({ submission }: { submission: AdminWordSubmission }) {
                   rel="noopener noreferrer"
                   className="truncate transition-colors hover:text-ink"
                 >
-                  @{submission.handle}
+                  {handleLabel}
                 </Link>
               ) : (
-                <span className="truncate">@{submission.handle}</span>
+                <span className="truncate">{handleLabel}</span>
               )}
             </>
           )}
@@ -101,6 +102,173 @@ function WordIdentity({ submission }: { submission: AdminWordSubmission }) {
             {providerLabels[submission.provider]}
           </span>
         </p>
+        {submission.profileUrl && (
+          <p className="mt-1 truncate font-mono text-[10px] text-muted/60">
+            {submission.profileUrl}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function DetailsEditor({
+  submission,
+  onUpdated,
+}: {
+  submission: AdminWordSubmission;
+  onUpdated: (next: AdminWordSubmission) => void;
+}) {
+  const isLinkedin = submission.provider === "linkedin_oidc";
+  const [open, setOpen] = useState(false);
+  const [displayName, setDisplayName] = useState(submission.displayName ?? "");
+  const [displayHandle, setDisplayHandle] = useState(submission.handle ?? "");
+  const [profileUrl, setProfileUrl] = useState(submission.profileUrl ?? "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setDisplayName(submission.displayName ?? "");
+      setDisplayHandle(submission.handle ?? "");
+      setProfileUrl(submission.profileUrl ?? "");
+      setError(null);
+      setSaved(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, submission.id]);
+
+  async function save() {
+    setSaving(true);
+    setError(null);
+    setSaved(false);
+    try {
+      const res = await fetch("/api/admin/words", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: submission.id,
+          action: "edit",
+          displayName: displayName.trim() === "" ? null : displayName,
+          displayHandle: isLinkedin
+            ? displayHandle.trim() === ""
+              ? null
+              : displayHandle
+            : undefined,
+          profileUrl: profileUrl.trim() === "" ? null : profileUrl,
+        }),
+      });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.submission) {
+        onUpdated(data.submission as AdminWordSubmission);
+        setSaved(true);
+      } else {
+        setError(
+          typeof data?.error === "string"
+            ? data.error
+            : "Update failed. Please try again."
+        );
+      }
+    } catch {
+      setError("Update failed. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="rounded-full border border-border px-3.5 py-1.5 font-body text-[11px] uppercase tracking-[0.08em] text-muted transition-colors hover:border-accentDev/60 hover:text-ink"
+      >
+        Edit name / link
+      </button>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-border bg-bg/50 p-4">
+      <div className="grid gap-3 md:grid-cols-3">
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
+            Display name
+          </span>
+          <input
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            maxLength={80}
+            placeholder={submission.displayName ?? "Display name"}
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2 font-body text-[13px] text-ink placeholder:text-muted/50 focus:border-accentDev/60 focus:outline-none"
+          />
+        </label>
+        {isLinkedin && (
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
+              Handle (without @)
+            </span>
+            <input
+              type="text"
+              value={displayHandle}
+              onChange={(e) => setDisplayHandle(e.target.value)}
+              maxLength={40}
+              placeholder={submission.handle ?? "handle"}
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 font-body text-[13px] text-ink placeholder:text-muted/50 focus:border-accentDev/60 focus:outline-none"
+            />
+          </label>
+        )}
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
+            Profile link
+          </span>
+          <input
+            type="url"
+            value={profileUrl}
+            onChange={(e) => setProfileUrl(e.target.value)}
+            maxLength={300}
+            placeholder="https://linkedin.com/in/…"
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2 font-body text-[13px] text-ink placeholder:text-muted/50 focus:border-accentDev/60 focus:outline-none"
+          />
+        </label>
+      </div>
+      <p className="mt-2 font-body text-[12px] text-muted/80">
+        Empty handle falls back to the link slug. Empty link removes the link. Empty name clears the override.
+      </p>
+      {error && (
+        <p role="alert" className="mt-2 font-body text-[12px] text-red-300">
+          {error}
+        </p>
+      )}
+      {saved && !error && (
+        <p className="mt-2 font-body text-[12px] text-emerald-300">
+          Saved.
+        </p>
+      )}
+      <div className="mt-3 flex items-center gap-2">
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => void save()}
+          className="inline-flex items-center gap-1.5 rounded-full border border-accentDev/60 px-4 py-1.5 font-body text-[11px] font-medium uppercase tracking-[0.08em] text-ink transition-colors hover:bg-accentDev/10 disabled:opacity-40"
+        >
+          {saving && <Loader2 size={12} className="animate-spin" aria-hidden />}
+          Save
+        </button>
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => {
+            setOpen(false);
+            setError(null);
+            setSaved(false);
+          }}
+          className="rounded-full px-3 py-1.5 font-body text-[11px] uppercase tracking-[0.08em] text-muted transition-colors hover:text-ink disabled:opacity-40"
+        >
+          Close
+        </button>
       </div>
     </div>
   );
@@ -187,6 +355,12 @@ export default function WordsAdmin() {
     () => submissions.filter((item) => item.status === "rejected"),
     [submissions]
   );
+
+  function handleDetailsUpdated(next: AdminWordSubmission) {
+    setSubmissions((current) =>
+      current.map((item) => (item.id === next.id ? next : item))
+    );
+  }
 
   return (
     <main className="px-6 pb-24 pt-12 md:px-16 md:pt-16">
@@ -311,6 +485,8 @@ export default function WordsAdmin() {
                         {submission.message}
                       </blockquote>
 
+                      <DetailsEditor submission={submission} onUpdated={handleDetailsUpdated} />
+
                       <div className="flex flex-wrap items-center justify-between gap-4">
                         <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted/60">
                           {formatDate(submission.createdAt)} &middot;{" "}
@@ -360,8 +536,9 @@ export default function WordsAdmin() {
                   {[...approved, ...rejected].map((submission) => (
                     <div
                       key={submission.id}
-                      className="flex flex-col gap-3 p-5 md:flex-row md:items-center md:justify-between md:gap-6"
+                      className="flex flex-col gap-4 p-5"
                     >
+                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6">
                       <div className="flex min-w-0 items-center gap-3">
                         <Avatar submission={submission} size={32} />
                         <div className="min-w-0">
@@ -388,6 +565,11 @@ export default function WordsAdmin() {
                                   .join(" · ")}`
                               : ""}
                           </p>
+                          {submission.profileUrl && (
+                            <p className="truncate font-mono text-[10px] text-muted/60">
+                              {submission.profileUrl}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="flex shrink-0 items-center gap-3 md:flex-col md:items-end md:gap-1.5">
@@ -400,6 +582,8 @@ export default function WordsAdmin() {
                           {formatDate(submission.updatedAt)}
                         </span>
                       </div>
+                      </div>
+                      <DetailsEditor submission={submission} onUpdated={handleDetailsUpdated} />
                     </div>
                   ))}
                 </div>

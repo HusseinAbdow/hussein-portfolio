@@ -105,13 +105,9 @@ export default function WordsModal({
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [doneMode, setDoneMode] = useState<"created" | "updated" | null>(null);
-  // Guards one-time prefill per authenticated session; cleared on close so
-  // the next open picks up refreshed existing-submission data.
+  // One prefill per session; reset on close.
   const prefilledRef = useRef(false);
-  // Portal host: the modal renders into <body> so its position:fixed is
-  // always viewport-relative. A transformed / will-change ancestor (e.g.
-  // ScrollReveal) otherwise becomes the containing block and anchors the
-  // dialog to that wrapper's place in the document instead of the screen.
+  // Render in body so fixed positioning stays viewport-relative.
   const [portalHost, setPortalHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -124,8 +120,7 @@ export default function WordsModal({
     session.status === "authenticated" && session.existingSubmission !== null;
   const done = doneMode !== null;
 
-  // Prefill the form with the visitor's current entry when they already have
-  // one — the edit flow starts from their existing content.
+  // Prefill when the visitor already has an entry.
   useEffect(() => {
     if (
       session.status === "authenticated" &&
@@ -155,7 +150,7 @@ export default function WordsModal({
     return null;
   }, [includesCollaborator, message, projectSlugs, relationships, sanitizedMessage]);
 
-  // Close on Escape + lock body scroll while open.
+  // Escape to close, lock scroll while open.
   useEffect(() => {
     if (!open) return;
 
@@ -226,7 +221,7 @@ export default function WordsModal({
     setSubmitting(true);
     setError(null);
     try {
-      // Editing goes through PATCH; first-time submissions use POST.
+      // PATCH for edits, POST for new.
       const res = await fetch("/api/words", {
         method: wasEditing ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
@@ -236,7 +231,6 @@ export default function WordsModal({
 
       if (res.ok) {
         setDoneMode(wasEditing ? "updated" : "created");
-        // Refresh the session so the next open prefills the updated entry.
         onRetrySession();
       } else {
         setError(
@@ -266,7 +260,6 @@ export default function WordsModal({
       setMessage("");
       setLinkedinUrl("");
     }
-    // Allow re-prefill on the next open with refreshed session data.
     prefilledRef.current = false;
     setError(null);
     onClose();
@@ -374,9 +367,7 @@ export default function WordsModal({
             </button>
           </div>
         ) : (
-          // Authenticated form: scrollable field area with the submit button
-          // pinned below it, so the button is always visible and reachable
-          // without scrolling — even on short viewports.
+          // Submit pinned below the scroll area.
           <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-2 sm:px-8">
               {error && (

@@ -1,5 +1,4 @@
-// Admin access remains GitHub-only. A LinkedIn session can never satisfy
-// the gate, regardless of its provider ID.
+// GitHub-only admin check.
 export function isAdminIdentity(
   identity: { provider: string; providerId: string } | null
 ): boolean {

@@ -30,9 +30,7 @@ export interface AdminWordSubmission extends PublicWordSubmission {
   updatedAt: string;
 }
 
-// Snapshot of the signed-in visitor's own active (pending/approved)
-// submission, resolved server-side by (provider, provider_id) — used to
-// prefill the edit flow. Rejected rows are excluded (they allow re-creating).
+// Visitor's own active submission, used to prefill the edit form.
 export interface WordsExistingSubmission {
   id: string;
   status: "pending" | "approved";
@@ -62,16 +60,14 @@ interface WordsSubmissionRow {
 
 const PROVIDER_VALUES: readonly ProviderName[] = ["github", "linkedin_oidc"];
 
-// Legacy rows predate the provider column; the schema default ("github")
-// keeps them identifiable, and anything unexpected is treated as github.
+// Old rows may lack provider/provider_id; default to github.
 function normalizeProvider(provider: string): ProviderName {
   return (PROVIDER_VALUES as readonly string[]).includes(provider)
     ? (provider as ProviderName)
     : "github";
 }
 
-// Stable identity key used for display and uniqueness; legacy GitHub rows
-// may not have provider_id populated yet, so fall back to github_user_id.
+// Display key with fallback for old GitHub rows.
 function identityKey(row: WordsSubmissionRow): string {
   return row.provider_id ?? (row.github_user_id != null ? String(row.github_user_id) : "");
 }
@@ -81,16 +77,14 @@ function baseWordFields(row: WordsSubmissionRow) {
     id: row.id,
     provider: normalizeProvider(row.provider),
     providerId: identityKey(row),
-    // GitHub handle is the username; LinkedIn rows use the curated
-    // display_handle when set (never an identity value, display only).
+    // GitHub username, else LinkedIn display_handle override.
     handle: row.github_username ?? row.display_handle,
     displayName: row.display_name,
     avatarUrl: row.avatar_url,
     profileUrl: row.profile_url,
     message: row.message,
     relationships: row.relationships ?? [],
-    // New multi-project array; fall back to the legacy single-value column
-    // for any row that predates the backfill.
+    // Prefer project_slugs, fall back to project_slug.
     projectSlugs:
       row.project_slugs ?? (row.project_slug ? [row.project_slug] : []),
     createdAt: row.created_at,

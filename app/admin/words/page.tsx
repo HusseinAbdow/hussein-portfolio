@@ -20,9 +20,7 @@ export default async function AdminWordsPage() {
     const supabase = createSupabaseServerClient();
     const session = await getSessionIdentity(supabase);
 
-    // Server-side authorization: only the configured admin GitHub ID passes.
-    // Everything else — including signed-in non-admins — gets a 404 so the
-    // route's existence isn't revealed.
+    // Non-admins get a 404.
     if (!session || !isAdminIdentity(session.identity)) {
       notFound();
     }

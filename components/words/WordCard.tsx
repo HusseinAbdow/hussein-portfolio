@@ -10,16 +10,15 @@ import OwnCardMenu from "@/components/words/OwnCardMenu";
 
 const projectBySlug = new Map(projects.map((p) => [p.slug, p]));
 
-// Relationship badges keep the sky-blue (accentDev) pill style.
+// Relationship badge style.
 const relationshipPillClasses =
   "inline-flex items-center rounded-full border-[1.5px] border-accentDev/60 bg-accentDev/5 px-3 py-1.5 font-body text-[11px] uppercase tracking-[0.08em] text-accentDev";
 
-// Small uppercase metadata label, consistent with the footer text treatment.
+// Metadata label style.
 const sectionLabelClasses =
   "font-mono text-[10px] uppercase tracking-[0.14em] text-muted/70";
 
-// Square provider icon badge: LinkedIn = blue square with the white "in"
-// mark; GitHub = neutral dark square with the white octocat mark.
+// Provider icon badge.
 function ProviderIconBadge({
   provider,
   size,
@@ -47,9 +46,6 @@ function ProviderIconBadge({
   );
 }
 
-// Provider icon colors: the badge backgrounds carry the brand identity; the
-// glyphs inside are white. LinkedIn's blue and GitHub's neutral dark both
-// read clearly against the card surface at these sizes.
 const GITHUB_USER = "HusseinAbdow";
 
 const providerLabels: Record<PublicWordSubmission["provider"], string> = {
@@ -57,10 +53,7 @@ const providerLabels: Record<PublicWordSubmission["provider"], string> = {
   linkedin_oidc: "LinkedIn",
 };
 
-// Pure display transform of the self-reported LinkedIn profile_url: extracts
-// the vanity slug from linkedin.com/in/<slug>. It is never stored, never used
-// as an identity value, and does not affect any verified styling — the
-// badge reflects the OAuth sign-in, not this URL.
+// Extracts the slug from a linkedin.com/in/... URL for display.
 function linkedinVanitySlug(profileUrl: string | null): string | null {
   if (!profileUrl) return null;
   try {
@@ -87,9 +80,7 @@ export default function WordCard({
     month: "short",
     year: "numeric",
   });
-  // Project badges: case-study slugs link to the case-study page; "gh:<name>"
-  // identifiers link to their URL from the static manual list (repo owners
-  // may differ, e.g. CRC Simulator lives under Bash77).
+  // Manual repos can live under other owners.
   const projectBadges = submission.projectSlugs.map((identifier) => {
     const caseStudy = projectBySlug.get(identifier);
     if (caseStudy) {
@@ -109,16 +100,12 @@ export default function WordCard({
     };
   });
 
-  // LinkedIn links are self-reported and optional: only wrap the avatar and
-  // name in a link when the visitor actually provided one.
+  // Only link when a URL was provided.
   const linkedinProfileUrl =
     submission.provider === "linkedin_oidc" && submission.profileUrl
       ? submission.profileUrl
       : null;
-  // Display handle is deliberately decoupled from the profile link: prefer
-  // the curated clean handle stored at submission time, and only fall back
-  // to the profile_url vanity slug when none exists. The URL itself is used
-  // solely as the link target.
+  // Prefer stored handle, fall back to URL slug.
   const linkedinHandle = submission.handle ?? linkedinVanitySlug(submission.profileUrl);
   const isGithub = submission.provider === "github";
 
@@ -127,10 +114,10 @@ export default function WordCard({
 
   return (
     <article className="relative flex h-full flex-col gap-5 rounded-2xl border border-border bg-surface p-6 text-left transition-[border-color,box-shadow] duration-300 hover:border-accentUx/40 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] md:p-7">
-      {/* Owner-only kebab menu (client-resolved; invisible to others) */}
+      {/* Owner menu */}
       <OwnCardMenu submissionId={submission.id} />
 
-      {/* Header: avatar top-left, name + verified badge + provider row right */}
+      {/* Header */}
       <header className="flex items-start gap-4">
         {submission.avatarUrl ? (
           linkedinProfileUrl ? (
@@ -167,7 +154,7 @@ export default function WordCard({
         )}
 
         <div className="flex min-w-0 flex-col gap-1.5 pt-0.5">
-          {/* Name row: name in --ink + filled circular verified badge */}
+          {/* Name + verified badge */}
           <span className="flex min-w-0 items-center gap-1.5">
             {linkedinProfileUrl ? (
               <Link
@@ -190,7 +177,7 @@ export default function WordCard({
             </span>
           </span>
 
-          {/* Provider row: square icon badge + @handle */}
+          {/* Provider + handle */}
           <span className="flex min-w-0 items-center gap-2">
             <ProviderIconBadge provider={submission.provider} size={20} />
             {isGithub ? (
@@ -279,7 +266,7 @@ export default function WordCard({
         </section>
       )}
 
-      {/* Quote section: opening glyph top-left, closing glyph bottom-right */}
+      {/* Quote */}
       <blockquote className="relative flex flex-1 flex-col">
         <span
           aria-hidden
@@ -298,7 +285,7 @@ export default function WordCard({
         </span>
       </blockquote>
 
-      {/* Footer: divider line + provider icon badge + muted meta row */}
+      {/* Footer */}
       <footer className="mt-auto flex flex-col gap-3 pt-1">
         <div aria-hidden className="h-px w-full bg-border" />
         <div className="flex items-center gap-2">
